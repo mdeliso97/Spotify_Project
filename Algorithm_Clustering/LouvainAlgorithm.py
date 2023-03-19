@@ -2,6 +2,7 @@ import pandas as pd
 import networkx as nx
 from networkx.algorithms import community
 import matplotlib.pyplot as plt
+import scipy
 
 # Load nodes and edges data from CSV files
 nodes_df = pd.read_csv("nodes.csv")
@@ -19,7 +20,7 @@ for _, edge in edges_df.iterrows():
     G.add_edge(edge["id_0"], edge["id_1"])
 
 # Apply the Louvain Algorithm
-partition = community.louvain_partitions(G)
+partition = community.louvain_partitions(G, weight='genres')
 
 # Add community assignments to nodes dataframe
 nodes_df["community"] = pd.Series(partition)
@@ -34,6 +35,6 @@ count = 0.
 for com in set(partition.values()):
     count = count + 1.
     list_nodes = [nodes for nodes in partition.keys() if partition[nodes] == com]
-    nx.draw_networkx_nodes(G, pos, list_nodes, node_size = 20, node_color = str(count / size))
+    nx.draw_networkx_nodes(G, pos, list_nodes, node_size=20, node_color=str(count / size))
 nx.draw_networkx_edges(G, pos, alpha=0.5)
 plt.show()
