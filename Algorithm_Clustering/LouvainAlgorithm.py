@@ -23,7 +23,7 @@ G = nx.Graph()
 counter = 0
 # Add edges to the graph
 for _, edge in edges_df.iterrows():
-    if counter != 100:
+    if counter != 1000:
         G.add_edge(edge["id_0"], edge["id_1"])
         counter += 1
     else:
@@ -32,7 +32,7 @@ for _, edge in edges_df.iterrows():
 
 # Apply the Louvain Algorithm
 partition = list(community.louvain_partitions(G, weight='genres'))
-
+partition = list(partition[0])
 # Add community assignments to nodes dataframe
 nodes_df["community"] = pd.Series(partition)
 
@@ -41,22 +41,20 @@ nodes_df.to_csv("nodes_with_community.csv", index=False)
 
 # Plot the network divided into clusters
 pos = nx.spring_layout(G, k=5)  # Gives a cluster shape to the network
-size = len(partition[0])
+size = len(partition)
 count = 0.
 list_nodes = []
 list_pos = {}
 list = []
-for com in partition[0]:
-    tuple_0 = tuple(com)
-    tuple_1 = tuple(partition[com])  # TODO: check this
-    list.clear()
-    for X in com:
-        list.append(X)
-    count = count + 1.
-    list_nodes.append(com)
 
-    list_pos[tuple_0] = tuple_1
-nx.draw_networkx_nodes(G, list_pos, list_nodes, node_size=20, node_color=str(count / size))
-nx.draw_networkx_edges(G, pos, alpha=0.5)
-plt.savefig('Louvain_Network.png')
-plt.show()
+# for x in pos:
+#     tuple_0 = (float(x[0]), float(x[1]))
+#     # tuple_1 = tuple(partition[com])  # TODO: check this
+#     list.clear()
+#     count = count + 1.
+#     list_nodes.append(x)
+#     list_pos[x] = tuple_0
+# nx.draw_networkx_nodes(G, list_pos, list_nodes, node_size=20, node_color=str(count / size))
+# nx.draw_networkx_edges(G, pos, alpha=0.5)
+# plt.savefig('Louvain_Network.png')
+# plt.show()

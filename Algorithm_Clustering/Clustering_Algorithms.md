@@ -84,6 +84,8 @@ of the adjacency matrix.
 3. Spectral Clustering Algorithm: O(n^2 log n)
 4. Girvan-Newman Algorithm: O(m^2 n)
 
+look for Pruning cliques
+
 
 
 
