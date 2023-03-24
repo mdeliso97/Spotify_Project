@@ -15,11 +15,17 @@ if __name__ == '__main__':
     # drop duplicates
     nodes, edges = drop_duplicates(nodes, edges)
 
+    # remove very unpopular artists
+    popularity_score = 40  # minimum popularity score required
+    artists_to_keep, _ = get_artists_popularity_larger_or_equal_than_n(nodes, popularity_score)
+    nodes = filter_nodes_on_ids(nodes, artists_to_keep)
+    edges = filter_edges_on_ids(edges, artists_to_keep)
+
     # remove artists with few featuring
-    n_featuring = 10  # minimum number of featuring we want to consider
+    n_featuring = 20  # minimum number of featuring we want to consider
     artists_to_keep, _ = get_artists_more_than_n_featuring(edges, n_featuring)
-    nodes = filter_nodes(nodes, artists_to_keep)
-    edges = filter_edges(edges, artists_to_keep)
+    nodes = filter_nodes_on_ids(nodes, artists_to_keep)
+    edges = filter_edges_on_ids(edges, artists_to_keep)
 
     # add columns to nodes with number of featuring and hits
     count_collaborations(nodes, edges)

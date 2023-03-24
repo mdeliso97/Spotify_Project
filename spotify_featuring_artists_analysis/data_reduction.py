@@ -35,7 +35,23 @@ def get_artists_more_than_n_featuring(edges: pd.DataFrame, n: int):
     return artists_more_than_n_featuring, less_than_n
 
 
-def filter_nodes(nodes: pd.DataFrame, nodes_to_keep: List[str]):
+def get_artists_popularity_larger_or_equal_than_n(nodes: pd.DataFrame, n: int):
+    """
+    This function removes artists with popularity less than n
+    Parameters:
+    nodes (pd.DataFrame): dataframe containing the network nodes
+    n (int): minimum popularity score
+    Returns:
+    List[str]: id of the artists with >= than popularity n
+    List[str]: id of the artists with < than popularity n
+    """
+    if 0 <= n <= 100:
+        return nodes[nodes['popularity'] >= n]['spotify_id'].tolist(), nodes[nodes['popularity'] < n]['spotify_id'].tolist()
+    else:
+        return nodes['spotify_id'], None
+
+
+def filter_nodes_on_ids(nodes: pd.DataFrame, nodes_to_keep: List[str]):
     """
     This function cuts all the nodes that are not present
     inside the nodes_to_keep list
@@ -48,7 +64,7 @@ def filter_nodes(nodes: pd.DataFrame, nodes_to_keep: List[str]):
     return nodes[nodes['spotify_id'].isin(nodes_to_keep)]
 
 
-def filter_edges(edges: pd.DataFrame, nodes_to_keep: List[str]):
+def filter_edges_on_ids(edges: pd.DataFrame, nodes_to_keep: List[str]):
     """
     This function cuts all the edges that are not related
     to nodes in the nodes_to_keep list
