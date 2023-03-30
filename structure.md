@@ -9,3 +9,6 @@ Functions to reduce the number of artists to be considered in computation. This 
 
 ```data_expansion.py```
 Based on the data that we already have, we are able to compute and add additional information for each artist. These information are condensed in two additional columns in the nodes dataframe. 
+
+```cluster_metrics.py```
+Functions to compute the metrics of a given cluster.
