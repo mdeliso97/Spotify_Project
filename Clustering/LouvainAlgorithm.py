@@ -98,17 +98,25 @@ if __name__ == "__main__":
     louvain_communities = list(community.louvain_partitions(G))
     louvain_communities = louvain_communities[-1]
 
-    # Add community assignments to nodes dataframe
-    nodes_df["community"] = pd.Series(louvain_communities)
-    node_list = [X for X in G.nodes]
+    louvain_communities_list = []
 
-    # print("There were found %d communities in Louvain: %s" % (len(louvain_communities), louvain_communities))
+    for X in louvain_communities:
+        louvain_communities_list0 = []
+        for Y in X:
+            louvain_communities_list0.append(Y)
+        louvain_communities_list.append(louvain_communities_list0)
+
+    # Add community assignments to nodes dataframe
+    df = pd.Series(louvain_communities_list)
+    nodes_df["community"] = pd.Series(louvain_communities_list)
+
     print("There were found %d communities in Louvain" % len(louvain_communities))
     print("Length of each community: ", sorted(len(a) for a in louvain_communities))
     count = sum(1 for X in louvain_communities if len(X) < 20)
     print("# of communities that we can get rid of since smaller then 20: ", count)
 
     # Output the community assignments to a separate CSV file
+    df.to_csv("communities.csv", index=False)
     nodes_df.to_csv("nodes_with_community.csv", index=False)
 
 
