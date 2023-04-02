@@ -1,5 +1,5 @@
 import itertools
-
+from data_reduction import *
 import pandas as pd
 import networkx as nx
 from networkx.algorithms import community
@@ -64,9 +64,26 @@ if __name__ == "__main__":
     timer_elapse = Timer.Timer()
     timer_elapse.start()
 
+    # Perform data reduction
+
+    # drop duplicates
+    nodes, edges = drop_duplicates(nodes_df, edges_df)
+
+    # remove very unpopular artists
+    popularity_score = 40  # minimum popularity score required
+    artists_to_keep, _ = get_artists_popularity_larger_or_equal_than_n(nodes, popularity_score)
+    nodes = filter_nodes_on_ids(nodes, artists_to_keep)
+    edges = filter_edges_on_ids(edges, artists_to_keep)
+
+    # remove artists with few featuring
+    n_featuring = 20  # minimum number of featuring we want to consider
+    artists_to_keep, _ = get_artists_more_than_n_featuring(edges, n_featuring)
+    nodes = filter_nodes_on_ids(nodes, artists_to_keep)
+    edges = filter_edges_on_ids(edges, artists_to_keep)
+
     counter = 0
     # Add edges to the graph
-    for _, edge in edges_df.iterrows():
+    for _, edge in edges.iterrows():
         if counter != 1000000:
             G.add_edge(edge["id_0"], edge["id_1"])
             counter += 1
@@ -90,7 +107,6 @@ if __name__ == "__main__":
     print("Length of each community: ", sorted(len(a) for a in louvain_communities))
     count = sum(1 for X in louvain_communities if len(X) < 20)
     print("# of communities that we can get rid of since smaller then 20: ", count)
-
 
     # Output the community assignments to a separate CSV file
     nodes_df.to_csv("nodes_with_community.csv", index=False)
