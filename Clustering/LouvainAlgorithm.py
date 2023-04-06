@@ -95,7 +95,7 @@ if __name__ == "__main__":
 
     # Apply the Louvain Algorithm
     # louvain_communities = louvain_partitions_k(G, k=10)
-    louvain_communities = list(community.louvain_partitions(G))
+    louvain_communities = list(community.louvain_partitions(G, seed=20))
     louvain_communities = louvain_communities[-1]
 
     louvain_communities_list = []
