@@ -1,5 +1,6 @@
 from data_reduction import *
 from data_expansion import *
+from data_enrichment import *
 
 
 if __name__ == '__main__':
@@ -7,10 +8,15 @@ if __name__ == '__main__':
     # path to data
     nodes_path = '/Users/caratja/Desktop/Benefri/Semester2/Social Media Analytics/Project/Data/nodes.csv'
     edges_path = '/Users/caratja/Desktop/Benefri/Semester2/Social Media Analytics/Project/Data/edges.csv'
+    tracks_path = '/Users/caratja/Desktop/Benefri/Semester2/Social Media Analytics/Project/Data/tracks.csv'
+    functional_words_path = '/Users/caratja/Desktop/Benefri/Semester2/Social Media Analytics/Project/Data/functional_words.txt'
+    spotify_img_mask_path = '/Users/caratja/Desktop/Benefri/Semester2/Social Media Analytics/Project/Data/spotify_mask2.jpg'
 
     # import data
     nodes = pd.read_csv(nodes_path)
     edges = pd.read_csv(edges_path)
+    tracks = pd.read_csv(tracks_path)
+    functional_words = read_txt_file(functional_words_path)
 
     # drop duplicates
     nodes, edges = drop_duplicates(nodes, edges)
