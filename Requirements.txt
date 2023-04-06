@@ -1,0 +1,3 @@
+pip install pyvis==0.3.1
+pip install mayavi   
+pip install pyvista 
