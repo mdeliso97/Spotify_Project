@@ -118,23 +118,23 @@ if __name__ == "__main__":
     df.to_csv("communities.csv", index=False)
 
     nodes_df['spotify_id'] = nodes_df['spotify_id'].astype(str)
-
+    edges.to_csv('reduced_edges.csv')
     # generating color for each community
+    # adding a new column for colors
     nodes_df['node color'] = ''
     no_of_colors = len(louvain_communities)
     color = ["#" + ''.join([random.choice('0123456789ABCDEF') for i in range(6)])
              for j in range(no_of_colors)]
 
-    # assigning the nodes to its community id
+    # assigning each node to its community id, and each community color to the node
     nodes_df['community_id'] = ''
     for i in range(len(louvain_communities_list)):
         for j in louvain_communities_list[i]:
             nodes_df.loc[nodes_df['spotify_id'] == j, 'community_id'] = i
             nodes_df.loc[nodes_df['spotify_id'] == j, 'node color'] = color[i]
 
+    # saving the new dataframe to an output file
     nodes_df.to_csv("nodes_with_community_id.csv", index=False)
-
-
 
     # Plot the network divided into clusters
     # pos = nx.spring_layout(G, k=10, seed=10)  # Gives a cluster shape to the network

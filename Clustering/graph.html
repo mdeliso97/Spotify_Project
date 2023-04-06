@@ -1,0 +1,429 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+                <link href="lib/tom-select/tom-select.css" rel="stylesheet">
+                <script src="lib/tom-select/tom-select.complete.min.js"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 750px;
+                 background-color: #222222;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+             #loadingBar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width: 100%;
+                 height: 750px;
+                 background-color:rgba(200,200,200,0.8);
+                 -webkit-transition: all 0.5s ease;
+                 -moz-transition: all 0.5s ease;
+                 -ms-transition: all 0.5s ease;
+                 -o-transition: all 0.5s ease;
+                 transition: all 0.5s ease;
+                 opacity:1;
+             }
+
+             #bar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width:20px;
+                 height:20px;
+                 margin:auto auto auto auto;
+                 border-radius:11px;
+                 border:2px solid rgba(30,30,30,0.05);
+                 background: rgb(0, 173, 246); /* Old browsers */
+                 box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
+             }
+
+             #border {
+                 position:absolute;
+                 top:10px;
+                 left:10px;
+                 width:500px;
+                 height:23px;
+                 margin:auto auto auto auto;
+                 box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+                 border-radius:10px;
+             }
+
+             #text {
+                 position:absolute;
+                 top:8px;
+                 left:530px;
+                 width:30px;
+                 height:50px;
+                 margin:auto auto auto auto;
+                 font-size:22px;
+                 color: #000000;
+             }
+
+             div.outerBorder {
+                 position:relative;
+                 top:400px;
+                 width:600px;
+                 height:44px;
+                 margin:auto auto auto auto;
+                 border:8px solid rgba(0,0,0,0.1);
+                 background: rgb(252,252,252); /* Old browsers */
+                 background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
+                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
+                 background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
+                 background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
+                 background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
+                 background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
+                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+                 border-radius:72px;
+                 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+             }
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+              <div id="filter-menu" class="card-header">
+                <div class="row no-gutters">
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="updateFilter(value, 'item')"
+                            id="select-item"
+                        >
+                        <option value="">Select a network item</option>
+                        <option value="edge">edge</option>
+                        <option value="node">node</option>
+                    </select>
+                  </div>
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="updateFilter(value, 'property')"
+                            id="select-property"
+                        >
+                        <option value="">Select a property...</option>
+                    </select>
+                  </div>
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            id="select-value"
+                        >
+                        <option value="">Select value(s)...</option>
+                    </select>
+                  </div>
+                  <div class="col-1 pb-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="highlightFilter(filter);">Filter</button>
+                  </div>
+                  <div class="col-2 pb-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="clearFilter(true)">Reset Selection</button>
+                  </div>
+                </div>
+              </div>
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+            <div id="loadingBar">
+              <div class="outerBorder">
+                <div id="text">0%</div>
+                <div id="border">
+                  <div id="bar"></div>
+                </div>
+              </div>
+            </div>
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+                  // explicitly using onItemAdd and this function as we need to save multiple values
+                  let updateValueFilter = function() {
+                      return function () {
+                      filter['value'].push(arguments[0])
+                      }
+                  }
+
+                  let valueControl = new TomSelect("#select-value",{
+                      maxItems: null,
+                      valueField: 'id',
+                      labelField: 'title',
+                      searchField: 'title',
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: updateValueFilter()
+                  });
+
+                  let addValues = function() {
+                      return function () {
+                          // clear the current value options and add the selected attribute values
+                          // tom-select handles duplicates
+                          let selectedProperty = arguments[0];
+                          valueControl.clear();
+                          valueControl.clearOptions();
+                          filter['value'] = []
+                          if (filter['item'] === 'node') {
+                              for (let each in allNodes) {
+                                  valueControl.addOption({
+                                      id:allNodes[each][selectedProperty],
+                                      title:allNodes[each][selectedProperty]
+                                  })
+                              }
+                          }
+                          else if (filter['item'] === 'edge') {
+                              for (let each in allEdges) {
+                                  valueControl.addOption({
+                                      id:allEdges[each][selectedProperty],
+                                      title:allEdges[each][selectedProperty]
+                                  })
+                              }
+                          }
+                      }
+                  };
+
+                  let propControl = new TomSelect("#select-property",{
+                      valueField: 'id',
+                      labelField: 'title',
+                      searchField: 'title',
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: addValues()
+                  });
+
+                  let addProperties = function() {
+                      return function () {
+                          // loops through the selected network item and adds the attributes to dropdown
+                          // tom-select handles duplicates
+                          clearFilter(false)
+                          if (arguments[0] === 'edge') {
+                              for (let each in allEdges) {
+                                  if (allEdges.hasOwnProperty(each)) {
+                                      for (let eachProp in allEdges[each]) {
+                                          if (allEdges[each].hasOwnProperty(eachProp)) {
+                                              propControl.addOption({id: eachProp, title: eachProp})
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                          else if (arguments[0] === 'node') {
+                              for (let each in allNodes) {
+                                  if (allNodes.hasOwnProperty(each)) {
+                                      for (let eachProp in allNodes[each]) {
+                                          if (allNodes[each].hasOwnProperty(eachProp)
+                                              && (eachProp !== 'hidden' && eachProp !== 'savedLabel'
+                                                  && eachProp !== 'hiddenLabel')) {
+                                              propControl.addOption({id: eachProp, title: eachProp})
+
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                      }
+                  };
+
+                  let itemControl = new TomSelect("#select-item",{
+                      create: false,
+                      sortField:{
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: addProperties()
+                  });
+
+                  function clearFilter(reset) {
+                      // utility function to clear all the selected filter options
+                      // if reset is set to true, the existing filter will be removed
+                      // else, only the dropdown options are cleared
+                      propControl.clear();
+                      propControl.clearOptions();
+                      valueControl.clear();
+                      valueControl.clearOptions();
+                      filter = {
+                          item : '',
+                          property : '',
+                          value : []
+                      }
+                      if (reset) {
+                          itemControl.clear();
+                          filterHighlight({nodes: []})
+                      }
+                  }
+
+                  function updateFilter(value, key) {
+                      // key could be 'item' or 'property' and value is as selected in dropdown
+                      filter[key] = value
+                  }
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#EC34F3", "font": {"color": "white"}, "id": "4q3ewBCX7sLwd24euuV69X", "label": "4q3ewBCX7sLwd24euuV69X", "shape": "dot", "size": 15}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1A8aoDrchH5aefQYBCfpLv", "label": "1A8aoDrchH5aefQYBCfpLv", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6w9ToX5slZ4uIdmD17hJ3c", "label": "6w9ToX5slZ4uIdmD17hJ3c", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4TAoP0f9OuWZUesao43xUW", "label": "4TAoP0f9OuWZUesao43xUW", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2DlGxzQSjYe5N6G9nkYghR", "label": "2DlGxzQSjYe5N6G9nkYghR", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1SupJlEpv7RS2tPNRaHViT", "label": "1SupJlEpv7RS2tPNRaHViT", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4IMAo2UQchVFyPH24PAjUs", "label": "4IMAo2UQchVFyPH24PAjUs", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "33ScadVnbm2X8kkUqOkC6Z", "label": "33ScadVnbm2X8kkUqOkC6Z", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0OROVBEZCocg0FcgJpyBse", "label": "0OROVBEZCocg0FcgJpyBse", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0zZJhc1T0zBurhnBwQ2fcu", "label": "0zZJhc1T0zBurhnBwQ2fcu", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0Q8NcsJwoCbZOHHW63su5S", "label": "0Q8NcsJwoCbZOHHW63su5S", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0AdjzZxHJ4MfbImx2rD0Df", "label": "0AdjzZxHJ4MfbImx2rD0Df", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4PFgfReja3r59JaekHpeuf", "label": "4PFgfReja3r59JaekHpeuf", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0GM7qgcRCORpGnfcN2tCiB", "label": "0GM7qgcRCORpGnfcN2tCiB", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "64aJYyrXljOodnUG6jvhRD", "label": "64aJYyrXljOodnUG6jvhRD", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4nDoRrQiYLoBzwC5BhVJzF", "label": "4nDoRrQiYLoBzwC5BhVJzF", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0Y30TbA4p8SAfCzy2AFBa8", "label": "0Y30TbA4p8SAfCzy2AFBa8", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "329e4yvIujISKGKz1BZZbO", "label": "329e4yvIujISKGKz1BZZbO", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1TtXnWcUs0FCkaZDPGYHdf", "label": "1TtXnWcUs0FCkaZDPGYHdf", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1pgDilWYDWLoOgGjf1iHNu", "label": "1pgDilWYDWLoOgGjf1iHNu", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1pf0MPKfKdvS8J779mS1Ay", "label": "1pf0MPKfKdvS8J779mS1Ay", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "47MpMsUfWtgyIIBEFOr4FE", "label": "47MpMsUfWtgyIIBEFOr4FE", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1i8SpTcr7yvPOmcqrbnVXY", "label": "1i8SpTcr7yvPOmcqrbnVXY", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "7tU1VKOuxiNZwBZC6RHidA", "label": "7tU1VKOuxiNZwBZC6RHidA", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2ydZrTy8U3kOMOzx20s3dg", "label": "2ydZrTy8U3kOMOzx20s3dg", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5gUZ67Vzi1FV2SnrWl1GlE", "label": "5gUZ67Vzi1FV2SnrWl1GlE", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1vyhD5VmyZ7KMfW5gqLgo5", "label": "1vyhD5VmyZ7KMfW5gqLgo5", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0f6U482Lbo91QNqNFH4Tat", "label": "0f6U482Lbo91QNqNFH4Tat", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "3E6xrwgnVfYCrCs0ePERDz", "label": "3E6xrwgnVfYCrCs0ePERDz", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "77GVmrLGuxNEvj2ibvT62v", "label": "77GVmrLGuxNEvj2ibvT62v", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "7ltDVBr6mKbRvohxheJ9h1", "label": "7ltDVBr6mKbRvohxheJ9h1", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2qbEtwBVyobgpNP5KcHE9J", "label": "2qbEtwBVyobgpNP5KcHE9J", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2R21vXR83lH98kGeO99Y66", "label": "2R21vXR83lH98kGeO99Y66", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4VMYDCV2IEDYJArk749S6m", "label": "4VMYDCV2IEDYJArk749S6m", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0EFisYRi20PTADoJrifHrz", "label": "0EFisYRi20PTADoJrifHrz", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4nxZciIJ63XsyL0YfKCkgJ", "label": "4nxZciIJ63XsyL0YfKCkgJ", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6p2442ymrT9lZEuCZJdYcH", "label": "6p2442ymrT9lZEuCZJdYcH", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "7qG3b048QCHVRO5Pv1T5lw", "label": "7qG3b048QCHVRO5Pv1T5lw", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5XJDexmWFLWOkjOEjOVX3e", "label": "5XJDexmWFLWOkjOEjOVX3e", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "738wLrAtLtCtFOLvQBXOXp", "label": "738wLrAtLtCtFOLvQBXOXp", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1GDbiv3spRmZ1XdM1jQbT7", "label": "1GDbiv3spRmZ1XdM1jQbT7", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2oQX8QiMXOyuqbcZEFsZfm", "label": "2oQX8QiMXOyuqbcZEFsZfm", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1m82A2YUjBaQnLAFi9vjJv", "label": "1m82A2YUjBaQnLAFi9vjJv", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1bAftSH8umNcGZ0uyV7LMg", "label": "1bAftSH8umNcGZ0uyV7LMg", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2dYSrA999b3VYp5V4J12T7", "label": "2dYSrA999b3VYp5V4J12T7", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1fux65HMCBvfJHqlBc4Nno", "label": "1fux65HMCBvfJHqlBc4Nno", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0Y5tJX1MQlPlqiwlOH1tJY", "label": "0Y5tJX1MQlPlqiwlOH1tJY", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "7lCRuW6BSXGAsxuQV9lR0i", "label": "7lCRuW6BSXGAsxuQV9lR0i", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4N5fp4zhTsVITZTVfsXpc2", "label": "4N5fp4zhTsVITZTVfsXpc2", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2LmcxBak1alK1bf7d1beTr", "label": "2LmcxBak1alK1bf7d1beTr", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2OHKEe204spO7G7NcbeO2o", "label": "2OHKEe204spO7G7NcbeO2o", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1qto4hHid1P71emI6Fd8xi", "label": "1qto4hHid1P71emI6Fd8xi", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2ayNSoKPCRAfjp6hQ76hRu", "label": "2ayNSoKPCRAfjp6hQ76hRu", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1ZTqusXWkfiTeOciFTpphG", "label": "1ZTqusXWkfiTeOciFTpphG", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "77ziqFxp5gaInVrF2lj4ht", "label": "77ziqFxp5gaInVrF2lj4ht", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "7iK8PXO48WeuP03g8YR51W", "label": "7iK8PXO48WeuP03g8YR51W", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0VRj0yCOv2FXJNP47XQnx5", "label": "0VRj0yCOv2FXJNP47XQnx5", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5fMUXHkw8R8eOP2RNVYEZX", "label": "5fMUXHkw8R8eOP2RNVYEZX", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "21451j1KhjAiaYKflxBjr1", "label": "21451j1KhjAiaYKflxBjr1", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5lFhCi03HDneWzvCxGctrT", "label": "5lFhCi03HDneWzvCxGctrT", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "7slfeZO9LsJbWgpkIoXBUJ", "label": "7slfeZO9LsJbWgpkIoXBUJ", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "3RtNN1VnooWEn3KQk03DUL", "label": "3RtNN1VnooWEn3KQk03DUL", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0GgyFUpOyzWDRDqx8FCTDN", "label": "0GgyFUpOyzWDRDqx8FCTDN", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2T1aUibqR2QC2sINIDQOAK", "label": "2T1aUibqR2QC2sINIDQOAK", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1fctva4kpRbg2k3v7kwRuS", "label": "1fctva4kpRbg2k3v7kwRuS", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1r4hJ1h58CWwUQe3MxPuau", "label": "1r4hJ1h58CWwUQe3MxPuau", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "68w2t0wbrGnxSIUHzWs5bt", "label": "68w2t0wbrGnxSIUHzWs5bt", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0elWFr7TW8piilVRYJUe4P", "label": "0elWFr7TW8piilVRYJUe4P", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "7viqvBP4uYljgKcqYfLkvu", "label": "7viqvBP4uYljgKcqYfLkvu", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6XFITTl7cFTdopDY3lUdlY", "label": "6XFITTl7cFTdopDY3lUdlY", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6w3SkAHYPsQ1bxV7VDlG5y", "label": "6w3SkAHYPsQ1bxV7VDlG5y", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0MoaBi6dSquXp6rrlqlF8R", "label": "0MoaBi6dSquXp6rrlqlF8R", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6kq4GHwUcUojGIu0ziSNXf", "label": "6kq4GHwUcUojGIu0ziSNXf", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "37230BxxYs9ksS7OkZw3IU", "label": "37230BxxYs9ksS7OkZw3IU", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "14zUHaJZo1mnYtn6IBRaRP", "label": "14zUHaJZo1mnYtn6IBRaRP", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5R3Hr2cnCCjt220Jmt2xLf", "label": "5R3Hr2cnCCjt220Jmt2xLf", "shape": "dot", "size": 10}, {"color": "#E46196", "font": {"color": "white"}, "id": "3TVXtAsR1Inumwj472S9r4", "label": "3TVXtAsR1Inumwj472S9r4", "shape": "dot", "size": 15}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1yeRzIylR1uGMCvfAPcYPt", "label": "1yeRzIylR1uGMCvfAPcYPt", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5GcWBUX00IPuWVGMIRK1sS", "label": "5GcWBUX00IPuWVGMIRK1sS", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "3EiLUeyEcA6fbRPSHkG5kb", "label": "3EiLUeyEcA6fbRPSHkG5kb", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4obzFoKoKRHIphyHzJ35G3", "label": "4obzFoKoKRHIphyHzJ35G3", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0hCNtLu0JehylgoiP8L4Gh", "label": "0hCNtLu0JehylgoiP8L4Gh", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2jku7tDXc6XoB6MO2hFuqg", "label": "2jku7tDXc6XoB6MO2hFuqg", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "03Enzet8KLMkjdeQnbqbmn", "label": "03Enzet8KLMkjdeQnbqbmn", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1URnnhqYAYcrqrcwql10ft", "label": "1URnnhqYAYcrqrcwql10ft", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "3ZJxEmjYZd5VOqZ8o3aXiL", "label": "3ZJxEmjYZd5VOqZ8o3aXiL", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2QWIScpFDNxmS6ZEMIUvgm", "label": "2QWIScpFDNxmS6ZEMIUvgm", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "00XhexlJEXQstHimpZN910", "label": "00XhexlJEXQstHimpZN910", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5QzDzXfXC5lepOBeQXBiVO", "label": "5QzDzXfXC5lepOBeQXBiVO", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5n9bMYfz9qss2VOW89EVs2", "label": "5n9bMYfz9qss2VOW89EVs2", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4wLXwxDeWQ8mtUIRPxGiD6", "label": "4wLXwxDeWQ8mtUIRPxGiD6", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0pxWSJ3TbIRuGPJnmxCfBe", "label": "0pxWSJ3TbIRuGPJnmxCfBe", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2wYOpkTJZGByNEOjEnSmoW", "label": "2wYOpkTJZGByNEOjEnSmoW", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "790FomKkXshlbRYZFtlgla", "label": "790FomKkXshlbRYZFtlgla", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6tOv5UYDorjmsernjtaHO1", "label": "6tOv5UYDorjmsernjtaHO1", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2TjgzYcbTdsZjbT9OItIeB", "label": "2TjgzYcbTdsZjbT9OItIeB", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2XcZshqzPKm3iZcmt73R8D", "label": "2XcZshqzPKm3iZcmt73R8D", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4m6ubhNsdwF4psNf3R8kwR", "label": "4m6ubhNsdwF4psNf3R8kwR", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0iwRZ9bQya1TDUAk5qN5YX", "label": "0iwRZ9bQya1TDUAk5qN5YX", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2pQAUIesBqfT87PaM1ijtk", "label": "2pQAUIesBqfT87PaM1ijtk", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1jSjfSgDjedJdi5MoyRu78", "label": "1jSjfSgDjedJdi5MoyRu78", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4SsVbpTthjScTS7U2hmr1X", "label": "4SsVbpTthjScTS7U2hmr1X", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "7LXdYckhvHWU4ejXbkHa3N", "label": "7LXdYckhvHWU4ejXbkHa3N", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "65jIUih0ZeTUJhSTRuYxpi", "label": "65jIUih0ZeTUJhSTRuYxpi", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "41qil2VaGbD194gaEcmmyx", "label": "41qil2VaGbD194gaEcmmyx", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5ImkeVBlU11axX5QwOWg12", "label": "5ImkeVBlU11axX5QwOWg12", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6P6GTRTigHBp8ZesNtpCKH", "label": "6P6GTRTigHBp8ZesNtpCKH", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0eHQ9o50hj6ZDNBt6Ys1sD", "label": "0eHQ9o50hj6ZDNBt6Ys1sD", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4axKuDPr6WKcDCyh8vueTY", "label": "4axKuDPr6WKcDCyh8vueTY", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1WMwuNKzEFtU6pPkdtryYS", "label": "1WMwuNKzEFtU6pPkdtryYS", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "3tZdknQnzsVIIdaGCTj4RX", "label": "3tZdknQnzsVIIdaGCTj4RX", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1PruL3P8slDEQAjSuOjuPd", "label": "1PruL3P8slDEQAjSuOjuPd", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1RBzGO6Nm3uyhUSxP7EDWO", "label": "1RBzGO6Nm3uyhUSxP7EDWO", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5ypEYwWaSgtjBPCPcredFM", "label": "5ypEYwWaSgtjBPCPcredFM", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "3LKXWvXFWrkwUzJWxzwVpW", "label": "3LKXWvXFWrkwUzJWxzwVpW", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6M2wZ9GZgrQXHCFfjv46we", "label": "6M2wZ9GZgrQXHCFfjv46we", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1wZtkThiXbVNtj6hee6dz9", "label": "1wZtkThiXbVNtj6hee6dz9", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4kYSro6naA4h99UJvo89HB", "label": "4kYSro6naA4h99UJvo89HB", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5hdhHgpxyniooUiQVaPxQ0", "label": "5hdhHgpxyniooUiQVaPxQ0", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6CeuGv4HZFxwZB1LyCBUjn", "label": "6CeuGv4HZFxwZB1LyCBUjn", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1y5Pyw7YKEtvJUysXq7IxH", "label": "1y5Pyw7YKEtvJUysXq7IxH", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2e5kXDvESsDPMyuQZ0qouH", "label": "2e5kXDvESsDPMyuQZ0qouH", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2HPaUgqeutzr3jx5a9WyDV", "label": "2HPaUgqeutzr3jx5a9WyDV", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "00me4Ke1LsvMxt5kydlMyU", "label": "00me4Ke1LsvMxt5kydlMyU", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0tR60pwxQ5WKjPxQcKoCQ7", "label": "0tR60pwxQ5WKjPxQcKoCQ7", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "12vb80Km0Ew53ABfJOepVz", "label": "12vb80Km0Ew53ABfJOepVz", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1mcTU81TzQhprhouKaTkpq", "label": "1mcTU81TzQhprhouKaTkpq", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2sSGPbdZJkaSE2AbcGOACx", "label": "2sSGPbdZJkaSE2AbcGOACx", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0pm4ijsngxgyYEZl0UeXug", "label": "0pm4ijsngxgyYEZl0UeXug", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6vXTefBL93Dj5IqAWq6OTv", "label": "6vXTefBL93Dj5IqAWq6OTv", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "3tVQdUvClmAT7URs9V3rsp", "label": "3tVQdUvClmAT7URs9V3rsp", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2EMAnMvWE2eb56ToJVfCWs", "label": "2EMAnMvWE2eb56ToJVfCWs", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0QHgL1lAIqAw0HtD7YldmP", "label": "0QHgL1lAIqAw0HtD7YldmP", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2YZyLoL8N0Wb9xBt1NhZWg", "label": "2YZyLoL8N0Wb9xBt1NhZWg", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1zNqQNIdeOUZHb8zbZRFMX", "label": "1zNqQNIdeOUZHb8zbZRFMX", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1RyvyyTE3xzB2ZywiAwp0i", "label": "1RyvyyTE3xzB2ZywiAwp0i", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "7c0XG5cIJTrrAgEC3ULPiq", "label": "7c0XG5cIJTrrAgEC3ULPiq", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "3KNIG74xSTc3dj0TRy7pGX", "label": "3KNIG74xSTc3dj0TRy7pGX", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1sBkRIssrMs1AbVkOJbc7a", "label": "1sBkRIssrMs1AbVkOJbc7a", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2UyyBkpzN5w3hzZBZGvRZb", "label": "2UyyBkpzN5w3hzZBZGvRZb", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2WoVwexZuODvclzULjPQtm", "label": "2WoVwexZuODvclzULjPQtm", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5wPoxI5si3eJsYYwyXV4Wi", "label": "5wPoxI5si3eJsYYwyXV4Wi", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "35sCXuy5gN6Or69rZ9vqBs", "label": "35sCXuy5gN6Or69rZ9vqBs", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "3DiDSECUqqY1AuBP8qtaIa", "label": "3DiDSECUqqY1AuBP8qtaIa", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "7v9bFXCdSMA2o3gS4nvp0F", "label": "7v9bFXCdSMA2o3gS4nvp0F", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "3tlXnStJ1fFhdScmQeLpuG", "label": "3tlXnStJ1fFhdScmQeLpuG", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4HzKw8XcD0piJmDrrPRCYk", "label": "4HzKw8XcD0piJmDrrPRCYk", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "7LnaAXbDVIL75IVPnndf7w", "label": "7LnaAXbDVIL75IVPnndf7w", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6f4XkbvYlXMH0QgVRzW0sM", "label": "6f4XkbvYlXMH0QgVRzW0sM", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1ooV8YZC1KbpEcrmI8WH0F", "label": "1ooV8YZC1KbpEcrmI8WH0F", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2cADQgiLMjNhbsfeN52Bf3", "label": "2cADQgiLMjNhbsfeN52Bf3", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "7dGJo4pcD2V6oG8kP0tJRR", "label": "7dGJo4pcD2V6oG8kP0tJRR", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "3nFkdlSjzX9mRTtwJOzDYB", "label": "3nFkdlSjzX9mRTtwJOzDYB", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6vWDO969PvNqNYHIOW5v0m", "label": "6vWDO969PvNqNYHIOW5v0m", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5pKCCKE2ajJHZ9KAiaK11H", "label": "5pKCCKE2ajJHZ9KAiaK11H", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "13y7CgLHjMVRMDqxdx0Xdo", "label": "13y7CgLHjMVRMDqxdx0Xdo", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6u11Qbko2N2hP4lTBYjX86", "label": "6u11Qbko2N2hP4lTBYjX86", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5LHRHt1k9lMyONurDHEdrp", "label": "5LHRHt1k9lMyONurDHEdrp", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0701LAQrkY5Il5vt06uNnC", "label": "0701LAQrkY5Il5vt06uNnC", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "7bkdi7f1mxyYxWcBlwON4s", "label": "7bkdi7f1mxyYxWcBlwON4s", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "14CHVeJGrR5xgUGQFV5BVM", "label": "14CHVeJGrR5xgUGQFV5BVM", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2LIk90788K0zvyj2JJVwkJ", "label": "2LIk90788K0zvyj2JJVwkJ", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "17lzZA2AlOHwCwFALHttmp", "label": "17lzZA2AlOHwCwFALHttmp", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "7e1ICztHM2Sc4JNLxeMXYl", "label": "7e1ICztHM2Sc4JNLxeMXYl", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5ooSG9S0glqP5ZrqqaHBvT", "label": "5ooSG9S0glqP5ZrqqaHBvT", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6l3HvQ5sa6mXTsMTB19rO5", "label": "6l3HvQ5sa6mXTsMTB19rO5", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4TEJudQY2pXxVHPE3gD2EU", "label": "4TEJudQY2pXxVHPE3gD2EU", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4yBK75WVCQXej1p04GWqxH", "label": "4yBK75WVCQXej1p04GWqxH", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5ZS223C6JyBfXasXxrRqOk", "label": "5ZS223C6JyBfXasXxrRqOk", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "77DAFfvm3O9zT5dIoG0eIO", "label": "77DAFfvm3O9zT5dIoG0eIO", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5f7VJjfbwm532GiveGC0ZK", "label": "5f7VJjfbwm532GiveGC0ZK", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6oBm8HB0yfrIc9IHbxs6in", "label": "6oBm8HB0yfrIc9IHbxs6in", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4OBJLual30L7gRl5UkeRcT", "label": "4OBJLual30L7gRl5UkeRcT", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "57LYzLEk2LcFghVwuWbcuS", "label": "57LYzLEk2LcFghVwuWbcuS", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "7mDU6nMUJnOSY2Hkjz5oqM", "label": "7mDU6nMUJnOSY2Hkjz5oqM", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0p4ViyfJUTW0IT4SCBLexf", "label": "0p4ViyfJUTW0IT4SCBLexf", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "74V3dE1a51skRkdII8y2C6", "label": "74V3dE1a51skRkdII8y2C6", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0fA0VVWsXO9YnASrzqfmYu", "label": "0fA0VVWsXO9YnASrzqfmYu", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5lHRUCqkQZCIWeX7xG4sYT", "label": "5lHRUCqkQZCIWeX7xG4sYT", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0bdJZl7TDeiymDYzMJnVh2", "label": "0bdJZl7TDeiymDYzMJnVh2", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2UMj7NCbuqy1yUZmiSYGjJ", "label": "2UMj7NCbuqy1yUZmiSYGjJ", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "699OTQXzgjhIYAHMy9RyPD", "label": "699OTQXzgjhIYAHMy9RyPD", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "7bXgB6jMjp9ATFy66eO08Z", "label": "7bXgB6jMjp9ATFy66eO08Z", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0qudezVgvl4Chd9BgNFB83", "label": "0qudezVgvl4Chd9BgNFB83", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1uNFoZAHBGtllmzznpCI3s", "label": "1uNFoZAHBGtllmzznpCI3s", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "687cZJR45JO7jhk1LHIbgq", "label": "687cZJR45JO7jhk1LHIbgq", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "3fMbdgg4jU18AjLCKBhRSm", "label": "3fMbdgg4jU18AjLCKBhRSm", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0NbfKEOTQCcwd6o7wSDOHI", "label": "0NbfKEOTQCcwd6o7wSDOHI", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "55Aa2cqylxrFIXC767Z865", "label": "55Aa2cqylxrFIXC767Z865", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5oNgAs7j5XcBMzWv3HAnHG", "label": "5oNgAs7j5XcBMzWv3HAnHG", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0c173mlxpT3dSFRgMO8XPh", "label": "0c173mlxpT3dSFRgMO8XPh", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6oMuImdp5ZcFhWP0ESe6mG", "label": "6oMuImdp5ZcFhWP0ESe6mG", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4thGcsymOK5oc43gJVtAqZ", "label": "4thGcsymOK5oc43gJVtAqZ", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1XkoF8ryArs86LZvFOkbyr", "label": "1XkoF8ryArs86LZvFOkbyr", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "62DmErcU7dqZbJaDqwsqzR", "label": "62DmErcU7dqZbJaDqwsqzR", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1Xfmvd48oOhEWkscWyEbh9", "label": "1Xfmvd48oOhEWkscWyEbh9", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "3aGFCoR8xGN6DKwvdzeSja", "label": "3aGFCoR8xGN6DKwvdzeSja", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5K4W6rqBFWDnAN6FQUkS6x", "label": "5K4W6rqBFWDnAN6FQUkS6x", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1W3FSF1BLpY3hlVIgvenLz", "label": "1W3FSF1BLpY3hlVIgvenLz", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5gznATMVO85ZcLTkE9ULU7", "label": "5gznATMVO85ZcLTkE9ULU7", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0f5nVCcR06GX8Qikz0COtT", "label": "0f5nVCcR06GX8Qikz0COtT", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "3pbi8H08p95NUZ7m6ybxUV", "label": "3pbi8H08p95NUZ7m6ybxUV", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5OrB6Jhhrl9y2PK0pSV4VP", "label": "5OrB6Jhhrl9y2PK0pSV4VP", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6Jrxnp0JgqmeUX1veU591p", "label": "6Jrxnp0JgqmeUX1veU591p", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6icQOAFXDZKsumw3YXyusw", "label": "6icQOAFXDZKsumw3YXyusw", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1xr2G8Hlx4QWmT9HaUbmoO", "label": "1xr2G8Hlx4QWmT9HaUbmoO", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0NWbwDZY1VkRqFafuQm6wk", "label": "0NWbwDZY1VkRqFafuQm6wk", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1Xyo4u8uXC1ZmMpatF05PJ", "label": "1Xyo4u8uXC1ZmMpatF05PJ", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "45a6gCQWq61lIUDmr1tKuO", "label": "45a6gCQWq61lIUDmr1tKuO", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6MtQKiOEtk2qWl5mBqiGh5", "label": "6MtQKiOEtk2qWl5mBqiGh5", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6Ip8FS7vWT1uKkJSweANQK", "label": "6Ip8FS7vWT1uKkJSweANQK", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0A0FS04o6zMoto8OKPsDwY", "label": "0A0FS04o6zMoto8OKPsDwY", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "08Ld63UgKrJ0nZnCkzHtzc", "label": "08Ld63UgKrJ0nZnCkzHtzc", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2hlmm7s2ICUX0LVIhVFlZQ", "label": "2hlmm7s2ICUX0LVIhVFlZQ", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "50co4Is1HCEo8bhOyUWKpn", "label": "50co4Is1HCEo8bhOyUWKpn", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6jeg7JBX9J9097esK752iR", "label": "6jeg7JBX9J9097esK752iR", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5Y5TRrQiqgUO4S36tzjIRZ", "label": "5Y5TRrQiqgUO4S36tzjIRZ", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1O10apSOoAPjOu6UhUNmeI", "label": "1O10apSOoAPjOu6UhUNmeI", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4fxd5Ee7UefO4CUXgwJ7IP", "label": "4fxd5Ee7UefO4CUXgwJ7IP", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4sglKanXuoU0gqGYP3wiNv", "label": "4sglKanXuoU0gqGYP3wiNv", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0EeQBlQJFiAfJeVN2vT9s0", "label": "0EeQBlQJFiAfJeVN2vT9s0", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "20sxb77xiYeusSH8cVdatc", "label": "20sxb77xiYeusSH8cVdatc", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "3hcs9uc56yIGFCSy9leWe7", "label": "3hcs9uc56yIGFCSy9leWe7", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "5lwmRuXgjX8xIwlnauTZIP", "label": "5lwmRuXgjX8xIwlnauTZIP", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "31TPClRtHm23RisEBtV3X7", "label": "31TPClRtHm23RisEBtV3X7", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6Xgp2XMz1fhVYe7i6yNAax", "label": "6Xgp2XMz1fhVYe7i6yNAax", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "1CoZyIx7UvdxT5c8UkMzHd", "label": "1CoZyIx7UvdxT5c8UkMzHd", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "3S0tlB4fE7ChxI2pWz8Xip", "label": "3S0tlB4fE7ChxI2pWz8Xip", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "2iojnBLj0qIMiKPvVhLnsH", "label": "2iojnBLj0qIMiKPvVhLnsH", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "4r63FhuTkUYltbVAg5TQnk", "label": "4r63FhuTkUYltbVAg5TQnk", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "0iEtIxbK0KxaSlF7G42ZOp", "label": "0iEtIxbK0KxaSlF7G42ZOp", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6wMr4zKPrrR0UVz08WtUWc", "label": "6wMr4zKPrrR0UVz08WtUWc", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "13ubrt8QOOCPljQ2FL1Kca", "label": "13ubrt8QOOCPljQ2FL1Kca", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "6UCQYrcJ6wab6gnQ89OJFh", "label": "6UCQYrcJ6wab6gnQ89OJFh", "shape": "dot", "size": 10}]);
+                  edges = new vis.DataSet([{"from": "4q3ewBCX7sLwd24euuV69X", "to": "1A8aoDrchH5aefQYBCfpLv", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "6w9ToX5slZ4uIdmD17hJ3c", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "4TAoP0f9OuWZUesao43xUW", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "2DlGxzQSjYe5N6G9nkYghR", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1SupJlEpv7RS2tPNRaHViT", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "4IMAo2UQchVFyPH24PAjUs", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "33ScadVnbm2X8kkUqOkC6Z", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "0OROVBEZCocg0FcgJpyBse", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "0zZJhc1T0zBurhnBwQ2fcu", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "0Q8NcsJwoCbZOHHW63su5S", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "0AdjzZxHJ4MfbImx2rD0Df", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "4PFgfReja3r59JaekHpeuf", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "0GM7qgcRCORpGnfcN2tCiB", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "64aJYyrXljOodnUG6jvhRD", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "4nDoRrQiYLoBzwC5BhVJzF", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "0Y30TbA4p8SAfCzy2AFBa8", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "329e4yvIujISKGKz1BZZbO", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1TtXnWcUs0FCkaZDPGYHdf", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1pgDilWYDWLoOgGjf1iHNu", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1pf0MPKfKdvS8J779mS1Ay", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "47MpMsUfWtgyIIBEFOr4FE", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1i8SpTcr7yvPOmcqrbnVXY", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "7tU1VKOuxiNZwBZC6RHidA", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "2ydZrTy8U3kOMOzx20s3dg", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "5gUZ67Vzi1FV2SnrWl1GlE", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1vyhD5VmyZ7KMfW5gqLgo5", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "0f6U482Lbo91QNqNFH4Tat", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "3E6xrwgnVfYCrCs0ePERDz", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "77GVmrLGuxNEvj2ibvT62v", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "7ltDVBr6mKbRvohxheJ9h1", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "2qbEtwBVyobgpNP5KcHE9J", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "2R21vXR83lH98kGeO99Y66", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "4VMYDCV2IEDYJArk749S6m", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "0EFisYRi20PTADoJrifHrz", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "4nxZciIJ63XsyL0YfKCkgJ", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "6p2442ymrT9lZEuCZJdYcH", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "7qG3b048QCHVRO5Pv1T5lw", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "5XJDexmWFLWOkjOEjOVX3e", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "738wLrAtLtCtFOLvQBXOXp", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1GDbiv3spRmZ1XdM1jQbT7", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "2oQX8QiMXOyuqbcZEFsZfm", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1m82A2YUjBaQnLAFi9vjJv", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1bAftSH8umNcGZ0uyV7LMg", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "2dYSrA999b3VYp5V4J12T7", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1fux65HMCBvfJHqlBc4Nno", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "0Y5tJX1MQlPlqiwlOH1tJY", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "7lCRuW6BSXGAsxuQV9lR0i", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "4N5fp4zhTsVITZTVfsXpc2", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "2LmcxBak1alK1bf7d1beTr", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "2OHKEe204spO7G7NcbeO2o", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1qto4hHid1P71emI6Fd8xi", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "2ayNSoKPCRAfjp6hQ76hRu", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1ZTqusXWkfiTeOciFTpphG", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "77ziqFxp5gaInVrF2lj4ht", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "7iK8PXO48WeuP03g8YR51W", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "0VRj0yCOv2FXJNP47XQnx5", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "5fMUXHkw8R8eOP2RNVYEZX", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "21451j1KhjAiaYKflxBjr1", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "5lFhCi03HDneWzvCxGctrT", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "7slfeZO9LsJbWgpkIoXBUJ", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "3RtNN1VnooWEn3KQk03DUL", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "0GgyFUpOyzWDRDqx8FCTDN", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "2T1aUibqR2QC2sINIDQOAK", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1fctva4kpRbg2k3v7kwRuS", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1r4hJ1h58CWwUQe3MxPuau", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "68w2t0wbrGnxSIUHzWs5bt", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "0elWFr7TW8piilVRYJUe4P", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "7viqvBP4uYljgKcqYfLkvu", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "6XFITTl7cFTdopDY3lUdlY", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "6w3SkAHYPsQ1bxV7VDlG5y", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "0MoaBi6dSquXp6rrlqlF8R", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "6kq4GHwUcUojGIu0ziSNXf", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "37230BxxYs9ksS7OkZw3IU", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "14zUHaJZo1mnYtn6IBRaRP", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "5R3Hr2cnCCjt220Jmt2xLf", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "3TVXtAsR1Inumwj472S9r4", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1yeRzIylR1uGMCvfAPcYPt", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "5GcWBUX00IPuWVGMIRK1sS", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "3EiLUeyEcA6fbRPSHkG5kb", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "4obzFoKoKRHIphyHzJ35G3", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "0hCNtLu0JehylgoiP8L4Gh", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "2jku7tDXc6XoB6MO2hFuqg", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "03Enzet8KLMkjdeQnbqbmn", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1URnnhqYAYcrqrcwql10ft", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "3ZJxEmjYZd5VOqZ8o3aXiL", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "2QWIScpFDNxmS6ZEMIUvgm", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "00XhexlJEXQstHimpZN910", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "5QzDzXfXC5lepOBeQXBiVO", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "5n9bMYfz9qss2VOW89EVs2", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "4wLXwxDeWQ8mtUIRPxGiD6", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "0pxWSJ3TbIRuGPJnmxCfBe", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "2wYOpkTJZGByNEOjEnSmoW", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "790FomKkXshlbRYZFtlgla", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "6tOv5UYDorjmsernjtaHO1", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "2TjgzYcbTdsZjbT9OItIeB", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "2XcZshqzPKm3iZcmt73R8D", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "4m6ubhNsdwF4psNf3R8kwR", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "0iwRZ9bQya1TDUAk5qN5YX", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "2pQAUIesBqfT87PaM1ijtk", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1jSjfSgDjedJdi5MoyRu78", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "4SsVbpTthjScTS7U2hmr1X", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "7LXdYckhvHWU4ejXbkHa3N", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "65jIUih0ZeTUJhSTRuYxpi", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "41qil2VaGbD194gaEcmmyx", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "5ImkeVBlU11axX5QwOWg12", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "6P6GTRTigHBp8ZesNtpCKH", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "0eHQ9o50hj6ZDNBt6Ys1sD", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "4axKuDPr6WKcDCyh8vueTY", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1WMwuNKzEFtU6pPkdtryYS", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "3tZdknQnzsVIIdaGCTj4RX", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1PruL3P8slDEQAjSuOjuPd", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1RBzGO6Nm3uyhUSxP7EDWO", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "5ypEYwWaSgtjBPCPcredFM", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "3LKXWvXFWrkwUzJWxzwVpW", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "6M2wZ9GZgrQXHCFfjv46we", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1wZtkThiXbVNtj6hee6dz9", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "4kYSro6naA4h99UJvo89HB", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "5hdhHgpxyniooUiQVaPxQ0", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "6CeuGv4HZFxwZB1LyCBUjn", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1y5Pyw7YKEtvJUysXq7IxH", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "2e5kXDvESsDPMyuQZ0qouH", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "2HPaUgqeutzr3jx5a9WyDV", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "00me4Ke1LsvMxt5kydlMyU", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "0tR60pwxQ5WKjPxQcKoCQ7", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "12vb80Km0Ew53ABfJOepVz", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "1mcTU81TzQhprhouKaTkpq", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "2sSGPbdZJkaSE2AbcGOACx", "width": 1}, {"from": "4q3ewBCX7sLwd24euuV69X", "to": "0pm4ijsngxgyYEZl0UeXug", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "6vXTefBL93Dj5IqAWq6OTv", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "3tVQdUvClmAT7URs9V3rsp", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "2EMAnMvWE2eb56ToJVfCWs", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "0QHgL1lAIqAw0HtD7YldmP", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "2YZyLoL8N0Wb9xBt1NhZWg", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "1zNqQNIdeOUZHb8zbZRFMX", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "1RyvyyTE3xzB2ZywiAwp0i", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "7c0XG5cIJTrrAgEC3ULPiq", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "3KNIG74xSTc3dj0TRy7pGX", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "1sBkRIssrMs1AbVkOJbc7a", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "2UyyBkpzN5w3hzZBZGvRZb", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "2WoVwexZuODvclzULjPQtm", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "5wPoxI5si3eJsYYwyXV4Wi", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "35sCXuy5gN6Or69rZ9vqBs", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "3DiDSECUqqY1AuBP8qtaIa", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "7v9bFXCdSMA2o3gS4nvp0F", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "3tlXnStJ1fFhdScmQeLpuG", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "4HzKw8XcD0piJmDrrPRCYk", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "7LnaAXbDVIL75IVPnndf7w", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "6f4XkbvYlXMH0QgVRzW0sM", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "1ooV8YZC1KbpEcrmI8WH0F", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "2cADQgiLMjNhbsfeN52Bf3", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "7dGJo4pcD2V6oG8kP0tJRR", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "3nFkdlSjzX9mRTtwJOzDYB", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "6vWDO969PvNqNYHIOW5v0m", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "5pKCCKE2ajJHZ9KAiaK11H", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "13y7CgLHjMVRMDqxdx0Xdo", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "6u11Qbko2N2hP4lTBYjX86", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "5LHRHt1k9lMyONurDHEdrp", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "0701LAQrkY5Il5vt06uNnC", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "7bkdi7f1mxyYxWcBlwON4s", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "14CHVeJGrR5xgUGQFV5BVM", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "2LIk90788K0zvyj2JJVwkJ", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "17lzZA2AlOHwCwFALHttmp", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "7e1ICztHM2Sc4JNLxeMXYl", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "5ooSG9S0glqP5ZrqqaHBvT", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "6l3HvQ5sa6mXTsMTB19rO5", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "4TEJudQY2pXxVHPE3gD2EU", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "4yBK75WVCQXej1p04GWqxH", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "5ZS223C6JyBfXasXxrRqOk", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "77DAFfvm3O9zT5dIoG0eIO", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "5f7VJjfbwm532GiveGC0ZK", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "6oBm8HB0yfrIc9IHbxs6in", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "4OBJLual30L7gRl5UkeRcT", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "57LYzLEk2LcFghVwuWbcuS", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "7mDU6nMUJnOSY2Hkjz5oqM", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "0VRj0yCOv2FXJNP47XQnx5", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "0p4ViyfJUTW0IT4SCBLexf", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "74V3dE1a51skRkdII8y2C6", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "0hCNtLu0JehylgoiP8L4Gh", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "0fA0VVWsXO9YnASrzqfmYu", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "5lHRUCqkQZCIWeX7xG4sYT", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "0bdJZl7TDeiymDYzMJnVh2", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "2UMj7NCbuqy1yUZmiSYGjJ", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "699OTQXzgjhIYAHMy9RyPD", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "7bXgB6jMjp9ATFy66eO08Z", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "0qudezVgvl4Chd9BgNFB83", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "1uNFoZAHBGtllmzznpCI3s", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "687cZJR45JO7jhk1LHIbgq", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "1URnnhqYAYcrqrcwql10ft", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "3fMbdgg4jU18AjLCKBhRSm", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "0NbfKEOTQCcwd6o7wSDOHI", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "55Aa2cqylxrFIXC767Z865", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "5oNgAs7j5XcBMzWv3HAnHG", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "0c173mlxpT3dSFRgMO8XPh", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "6oMuImdp5ZcFhWP0ESe6mG", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "4thGcsymOK5oc43gJVtAqZ", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "1XkoF8ryArs86LZvFOkbyr", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "62DmErcU7dqZbJaDqwsqzR", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "1Xfmvd48oOhEWkscWyEbh9", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "3aGFCoR8xGN6DKwvdzeSja", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "5K4W6rqBFWDnAN6FQUkS6x", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "1W3FSF1BLpY3hlVIgvenLz", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "5gznATMVO85ZcLTkE9ULU7", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "0f5nVCcR06GX8Qikz0COtT", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "3pbi8H08p95NUZ7m6ybxUV", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "5OrB6Jhhrl9y2PK0pSV4VP", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "6Jrxnp0JgqmeUX1veU591p", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "6icQOAFXDZKsumw3YXyusw", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "1xr2G8Hlx4QWmT9HaUbmoO", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "0NWbwDZY1VkRqFafuQm6wk", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "1Xyo4u8uXC1ZmMpatF05PJ", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "45a6gCQWq61lIUDmr1tKuO", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "6MtQKiOEtk2qWl5mBqiGh5", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "6Ip8FS7vWT1uKkJSweANQK", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "0A0FS04o6zMoto8OKPsDwY", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "08Ld63UgKrJ0nZnCkzHtzc", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "2hlmm7s2ICUX0LVIhVFlZQ", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "50co4Is1HCEo8bhOyUWKpn", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "6jeg7JBX9J9097esK752iR", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "5Y5TRrQiqgUO4S36tzjIRZ", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "1O10apSOoAPjOu6UhUNmeI", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "4fxd5Ee7UefO4CUXgwJ7IP", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "4sglKanXuoU0gqGYP3wiNv", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "0EeQBlQJFiAfJeVN2vT9s0", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "20sxb77xiYeusSH8cVdatc", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "3hcs9uc56yIGFCSy9leWe7", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "5lwmRuXgjX8xIwlnauTZIP", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "0Y5tJX1MQlPlqiwlOH1tJY", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "31TPClRtHm23RisEBtV3X7", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "6Xgp2XMz1fhVYe7i6yNAax", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "1CoZyIx7UvdxT5c8UkMzHd", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "2HPaUgqeutzr3jx5a9WyDV", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "3S0tlB4fE7ChxI2pWz8Xip", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "2iojnBLj0qIMiKPvVhLnsH", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "4r63FhuTkUYltbVAg5TQnk", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "0iEtIxbK0KxaSlF7G42ZOp", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "6wMr4zKPrrR0UVz08WtUWc", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "13ubrt8QOOCPljQ2FL1Kca", "width": 1}, {"from": "3TVXtAsR1Inumwj472S9r4", "to": "6UCQYrcJ6wab6gnQ89OJFh", "width": 1}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "barnesHut": {
+            "avoidOverlap": 0,
+            "centralGravity": 0.3,
+            "damping": 0.09,
+            "gravitationalConstant": -80000,
+            "springConstant": 0.001,
+            "springLength": 250
+        },
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+                      network.on("stabilizationProgress", function(params) {
+                          document.getElementById('loadingBar').removeAttribute("style");
+                          var maxWidth = 496;
+                          var minWidth = 20;
+                          var widthFactor = params.iterations/params.total;
+                          var width = Math.max(minWidth,maxWidth * widthFactor);
+                          document.getElementById('bar').style.width = width + 'px';
+                          document.getElementById('text').innerHTML = Math.round(widthFactor*100) + '%';
+                      });
+                      network.once("stabilizationIterationsDone", function() {
+                          document.getElementById('text').innerHTML = '100%';
+                          document.getElementById('bar').style.width = '496px';
+                          document.getElementById('loadingBar').style.opacity = 0;
+                          // really clean the dom element
+                          setTimeout(function () {document.getElementById('loadingBar').style.display = 'none';}, 500);
+                      });
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

@@ -1,44 +1,33 @@
-
 from pyvis.network import Network
 import networkx as nx
+from data_reduction import *
 import pandas as pd
 
-nodes_df = pd.read_csv("nodes.csv")
-edges_df = pd.read_csv("edges.csv")
 
-# Create a NetworkX graph object
-G = nx.Graph()
+def drawGraph_Louvain(nodes, edges):
+    # Create a NetworkX graph object
+    G = nx.Graph()
 
-counter = 0
-# Add nodes to the graph
-for _, node in nodes_df.iterrows():
-    if counter != 100:
-         G.add_node(node["spotify_id"])
-         counter += 1
-    else:
-         break
+    # adding graph nodes
+    for _, node in nodes.iterrows():
+        G.add_node(node["spotify_id"], color=node['node color'], size=15)
 
-
-counter = 0
-# Add edges to the graph
-for _, edge in edges_df.iterrows():
-    if counter != 10000:
+    # adding edges nodes
+    for _, edge in edges.iterrows():
         G.add_edge(edge["id_0"], edge["id_1"])
-        counter += 1
-    else:
-        break
 
-#graph = nx.from_pandas_edgelist(df,source = "Source" , target = "Target", edge_attr =['weight','book'] )
+    print("graph is constructed!")
 
-nx.draw(G, pos=nx.circular_layout(G),with_labels=True)
-nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white") #filter_menu=True
+    nx.draw(G, pos=nx.circular_layout(G), with_labels=True)
 
+    # initializing the graph layout
+    nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", filter_menu=True)
+    nt.barnes_hut()
+    print("network is graphed")
 
+    # transforming the graph from networkx object to pyvis.network object
+    nt.from_nx(G)
+    print("transformation is done")
 
-
-nt.barnes_hut()
-
-nt.from_nx(G)
-#nt.show_buttons(filter_=['physics'])
-nt.show('nx.html')
-
+    # returns network object
+    return nt
