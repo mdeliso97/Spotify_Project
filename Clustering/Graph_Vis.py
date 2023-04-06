@@ -6,7 +6,7 @@ import pandas as pd
 
 def drawGraph_Louvain(nodes, edges):
     # Create a NetworkX graph object
-    G = nx.Graph()
+    G = nx.Graph() 
 
     # adding graph nodes
     for _, node in nodes.iterrows():
