@@ -4,13 +4,14 @@ import pandas as pd
 import networkx as nx
 from networkx.algorithms import community
 from networkx.algorithms.community import modularity
+import CommonEdges
 
 import Timer
 import matplotlib.pyplot as plt
 import scipy
 
 
-def louvain_partitions_k(G, k, weight="weight", resolution=1, threshold=0.0000001, seed=None):
+def louvain_partitions_k(G, k, weight="weight", resolution=1, threshold=0.0000001, seed=20):
     """Returns the partition of the graph G into k communities using Louvain community detection algorithm."""
     partitions = list(community.louvain_partitions(G, weight, resolution, threshold, seed))
     while len(partitions) > k:
@@ -106,6 +107,14 @@ if __name__ == "__main__":
             louvain_communities_list0.append(Y)
         louvain_communities_list.append(louvain_communities_list0)
 
+    # Find the edges in common between all communities found
+    for i in range(len(louvain_communities_list)):
+        for j in range(i + 1, len(louvain_communities_list)):
+            timer_elapse.checkpoint()
+            common_edges = CommonEdges.CommonEdges(G, louvain_communities_list[i], louvain_communities_list[j])
+            print("Edges in common between community %d (length %d) and %d (length %d): %d" % (
+                i, len(louvain_communities_list[i]), j, len(louvain_communities_list[j]), len(common_edges)))
+
     # Add community assignments to nodes dataframe
     df = pd.Series(louvain_communities_list)
     nodes_df["community"] = pd.Series(louvain_communities_list)
@@ -118,9 +127,6 @@ if __name__ == "__main__":
     # Output the community assignments to a separate CSV file
     df.to_csv("communities.csv", index=False)
     nodes_df.to_csv("nodes_with_community.csv", index=False)
-
-
-
 
     # Plot the network divided into clusters
     # pos = nx.spring_layout(G, k=10, seed=10)  # Gives a cluster shape to the network
