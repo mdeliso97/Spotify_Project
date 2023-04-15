@@ -1,11 +1,16 @@
 from collections import Counter
-from typing import List
-import pandas as pd
+from typing import List, Set
 import regex as re
+import plotly.graph_objects as go
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from PIL import Image
 import numpy as np
+from sklearn.preprocessing import MinMaxScaler
+import plotly.express as px
+import pandas as pd
+import os
+import ast
 
 
 def read_txt_file(path: str):
@@ -19,6 +24,7 @@ def read_txt_file(path: str):
     """
     with open(path, 'r') as f:
         return [word.strip() for word in f]
+
 
 def get_author_tracks(tracks: pd.DataFrame, artist_id: str):
     """
@@ -35,7 +41,7 @@ def get_author_tracks(tracks: pd.DataFrame, artist_id: str):
     return list(tracks_ids)
 
 
-def get_words_frequency(tracks: pd.DataFrame, tracks_ids: List[str], functional_words: List[str]):
+def get_words_frequency(tracks: pd.DataFrame, functional_words: List[str]):
     """
     This function computes the frequencies of all
     the words in the title of the given songs
@@ -46,28 +52,27 @@ def get_words_frequency(tracks: pd.DataFrame, tracks_ids: List[str], functional_
     Returns:
     Counter: dictionary with words' counts
     """
-    filtered_track = tracks[tracks['id'].isin(tracks_ids)]
-    artist_name_obj = filtered_track.artists.values
+    # artist_name_obj = tracks.artists.values
 
-    artists_set = set()
-    for s in artist_name_obj:
-        # Extract artist names using regex
-        artists_names = re.findall(r"'([\w\s]+)'", s)
-
-        # Add artist names to set
-        for artist_names in artists_names:
-            for name in artist_names.split():
-                artists_set.add(name.lower())
+    # artists_set = set()
+    # for s in artist_name_obj:
+    #     # Extract artist names using regex
+    #     artists_names = re.findall(r"'([\w\s]+)'", s)
+    #
+    #     # Add artist names to set
+    #     for artist_names in artists_names:
+    #         for name in artist_names.split():
+    #             artists_set.add(name.lower())
 
     # Normalize and remove words
-    all_titles = ' '.join(filtered_track['name'].values)  # extract titles and concatenate into a single string
+    all_titles = ' '.join(tracks['name'].values)  # extract titles and concatenate into a single string
     all_titles = re.sub(r'\b\s+\b', ' ', all_titles)  # remove spaces from word boundaries
     all_titles = re.sub(r'\d+', '', all_titles)  # remove digits
     all_titles = all_titles.lower()  # convert to lowercase
     all_titles = re.sub(r"[^\w\s']+", '', all_titles)  # remove special characters
 
-    for name in artists_set:
-        all_titles = all_titles.replace(name, '')  # remove artist names
+    # for name in artists_set:
+    #     all_titles = all_titles.replace(name, '')  # remove artist names
 
     # remove functional words
     all_words = all_titles.split()
@@ -78,7 +83,7 @@ def get_words_frequency(tracks: pd.DataFrame, tracks_ids: List[str], functional_
     return word_freq
 
 
-def cluster_words_frequency(tracks: pd.DataFrame, cluster_artists_ids: List[str], functional_words: List[str]):
+def cluster_words_frequency(tracks: pd.DataFrame, cluster_ids: List[str], functional_words: List[str]):
     """
     This function gets all the ids of the
     songs of the given artist
@@ -90,14 +95,16 @@ def cluster_words_frequency(tracks: pd.DataFrame, cluster_artists_ids: List[str]
     Counter: dictionary with words' counts
     """
     words_freq = Counter()
-    for artist_id in cluster_artists_ids:
-        artist_tracks_ids = get_author_tracks(tracks, artist_id)
-        artist_words_freq = get_words_frequency(tracks, artist_tracks_ids, functional_words)
-        words_freq += artist_words_freq
+    filtered_tracks = tracks[tracks['id_artists'].apply(lambda x: any(artist_id in x for artist_id in cluster_ids))]
+    words_freq = get_words_frequency(filtered_tracks, functional_words)
+    # words_freq += artist_words_freq
+    # for artist_id in cluster_ids:
+        # artist_tracks_ids = get_author_tracks(tracks, artist_id)
+
     return words_freq
 
 
-def cluster_words_cloud(img_mask: str, words: Counter):
+def cluster_words_cloud(img_mask: str, words: Counter, cluster_name: str):
     """
     This function produces a words' cloud
     of the given cluster words considering
@@ -106,6 +113,9 @@ def cluster_words_cloud(img_mask: str, words: Counter):
     shape_path (str): path of the image mask
     words (Counter): dictionary with words' counts
     """
+    # if cluster songs titles contain 0 words
+    if len(words) == 0:
+        return
     mask = np.array(Image.open(img_mask))
     wordcloud = WordCloud(width=800,
                           height=800,
@@ -120,4 +130,99 @@ def cluster_words_cloud(img_mask: str, words: Counter):
     plt.imshow(wordcloud)
     plt.axis("off")
     plt.tight_layout(pad=0)
-    plt.show()
+
+    if not os.path.exists("./cluster_indexes"):
+        os.mkdir("./cluster_indexes")
+
+    plt.savefig(f'./cluster_indexes/{cluster_name}_cluster_words_cloud.png')
+
+
+def normalize_tracks(tracks: pd.DataFrame):
+    """
+    This function normalizes the values of
+    tracks columns with indexes
+    Parameters:
+    tracks (pd.DataFrame): dataframe containing tracks
+    Returns:
+    pd.DataFrame: dataframe containing normalized tracks
+    """
+    features = ['danceability', 'energy', 'loudness', 'valence', 'tempo', 'speechiness', 'acousticness',
+                'instrumentalness', 'duration_ms', 'liveness']
+    tracks_features = tracks[features]
+    scaler = MinMaxScaler()
+    tracks[features] = tracks_features.apply(lambda x: scaler.fit_transform(x.values.reshape(-1, 1)).flatten())
+    tracks['artists'] = tracks['artists'].apply(ast.literal_eval)
+    return tracks
+
+
+def cluster_indexes(tracks: pd.DataFrame, cluster_ids: Set[str]):
+    """
+    This function computes the means of the indexes values
+    of the songs of the given artists
+    Parameters:
+    tracks (pd.DataFrame): dataframe containing tracks
+    cluster_artists_ids (List[str]): list of artists ids
+    Returns:
+    dict: dictionary with indexes and corresponding means
+    """
+    filtered_tracks = tracks[tracks['id_artists'].apply(lambda x: any(artist_id in x for artist_id in cluster_ids))]
+    features = ['danceability', 'energy', 'loudness', 'valence', 'tempo', 'speechiness', 'acousticness',
+                'instrumentalness', 'duration_ms', 'liveness']
+    indexes = {}
+    for f in features:
+        indexes[f] = filtered_tracks[f].mean()
+    return indexes
+
+
+def generate_radar_graph(indexes, cluster_name: str, color: str, graph_type: str):
+    df = pd.DataFrame(dict(
+        r=list(indexes.values()) + [list(indexes.values())[0]],  # add the first value at the end of the `r` array
+        theta=list(indexes.keys()) + [list(indexes.keys())[0]]))  # add the first key at the end of the `theta` array
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatterpolar(
+        r=df['r'],
+        theta=df['theta'],
+        fill='toself',
+        line=dict(color=color),
+    ))
+
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(
+                visible=True,
+                range=[0, 1]
+            )),
+        showlegend=False,
+        title={
+            'text': f'Music {graph_type}: {cluster_name}',
+            'x': 0.5,
+            'y': 0.95,
+            'xanchor': 'center',
+            'yanchor': 'top',
+            'font': {'size': 16}
+        }
+    )
+    fig.write_image(f'./cluster_indexes/{cluster_name}_cluster_{graph_type}.png')
+
+
+def generate_indexes_images(indexes: dict, cluster_name: str):
+    """
+    This function plots a radar graph
+    with mean indexes
+    Parameters:
+    indexes (dict): dictionary with indexes and corresponding means
+    cluster_name (str): name of the given cluster
+    """
+    features_a = ['danceability', 'energy', 'loudness', 'valence', 'tempo']
+    features_b = ['speechiness', 'acousticness', 'instrumentalness']
+
+    indexes_a = dict((f, indexes[f]) for f in indexes if f in features_a)
+    indexes_b = dict((f, indexes[f]) for f in indexes if f in features_b)
+
+    if not os.path.exists("./cluster_indexes"):
+        os.mkdir("./cluster_indexes")
+
+    generate_radar_graph(indexes_a, cluster_name, 'red', 'properties')
+    generate_radar_graph(indexes_b, cluster_name, 'green', 'qualities')
