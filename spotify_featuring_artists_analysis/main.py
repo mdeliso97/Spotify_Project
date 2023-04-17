@@ -57,6 +57,8 @@ if __name__ == '__main__':
     # - radar-graph = qualities and properties extraction
     no_genre_count = 0
     for cluster in louvain_communities:
+        if len(cluster) <= 100:
+            continue
         top_genres = get_main_n_cluster_genres(nodes, cluster, 1)
 
         if len(top_genres) == 0:
@@ -64,7 +66,7 @@ if __name__ == '__main__':
             no_genre_count += 1
 
         # word-cloud
-        cluster_word_freq = cluster_words_frequency(tracks, cluster, functional_words)
+        cluster_word_freq = get_words_frequency(tracks, cluster, functional_words)
         cluster_words_cloud(spotify_img_mask_path, cluster_word_freq, top_genres[0])
 
         # radar-graph

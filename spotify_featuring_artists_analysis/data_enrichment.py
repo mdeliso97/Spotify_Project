@@ -41,7 +41,7 @@ def get_author_tracks(tracks: pd.DataFrame, artist_id: str):
     return list(tracks_ids)
 
 
-def get_words_frequency(tracks: pd.DataFrame, functional_words: List[str]):
+def get_words_frequency(tracks: pd.DataFrame, cluster_ids: List[str], functional_words: List[str]):
     """
     This function computes the frequencies of all
     the words in the title of the given songs
@@ -64,8 +64,10 @@ def get_words_frequency(tracks: pd.DataFrame, functional_words: List[str]):
     #         for name in artist_names.split():
     #             artists_set.add(name.lower())
 
+    filtered_tracks = tracks[tracks['id_artists'].isin(cluster_ids)]
+
     # Normalize and remove words
-    all_titles = ' '.join(tracks['name'].values)  # extract titles and concatenate into a single string
+    all_titles = ' '.join(filtered_tracks['name'].values)  # extract titles and concatenate into a single string
     all_titles = re.sub(r'\b\s+\b', ' ', all_titles)  # remove spaces from word boundaries
     all_titles = re.sub(r'\d+', '', all_titles)  # remove digits
     all_titles = all_titles.lower()  # convert to lowercase
@@ -81,27 +83,6 @@ def get_words_frequency(tracks: pd.DataFrame, functional_words: List[str]):
 
     word_freq = Counter(all_titles.split())  # split titles into individual words and count frequencies
     return word_freq
-
-
-def cluster_words_frequency(tracks: pd.DataFrame, cluster_ids: List[str], functional_words: List[str]):
-    """
-    This function gets all the ids of the
-    songs of the given artist
-    Parameters:
-    tracks (pd.DataFrame): dataframe containing tracks
-    cluster_artists_ids (str): ids of the artists in a cluster
-    functional_words (List[str]): functional words list
-    Returns:
-    Counter: dictionary with words' counts
-    """
-    words_freq = Counter()
-    filtered_tracks = tracks[tracks['id_artists'].apply(lambda x: any(artist_id in x for artist_id in cluster_ids))]
-    words_freq = get_words_frequency(filtered_tracks, functional_words)
-    # words_freq += artist_words_freq
-    # for artist_id in cluster_ids:
-        # artist_tracks_ids = get_author_tracks(tracks, artist_id)
-
-    return words_freq
 
 
 def cluster_words_cloud(img_mask: str, words: Counter, cluster_name: str):
@@ -135,6 +116,7 @@ def cluster_words_cloud(img_mask: str, words: Counter, cluster_name: str):
         os.mkdir("./cluster_indexes")
 
     plt.savefig(f'./cluster_indexes/{cluster_name}_cluster_words_cloud.png')
+    plt.close()
 
 
 def normalize_tracks(tracks: pd.DataFrame):
@@ -146,12 +128,26 @@ def normalize_tracks(tracks: pd.DataFrame):
     Returns:
     pd.DataFrame: dataframe containing normalized tracks
     """
+    tracks = tracks.copy()
+
+    # name
+    tracks = tracks.dropna(subset=['name'])  # drops songs with no title
+
+    # id_artists
+    tracks.loc[:, 'id_artists'] = tracks['id_artists'].apply(ast.literal_eval)
+    tracks.loc[:, 'id_artists'] = tracks['id_artists'].apply(lambda x: x[0])
+
+    # artists
+    tracks.loc[:, 'artists'] = tracks['artists'].apply(ast.literal_eval)
+    tracks.loc[:, 'artists'] = tracks['artists'].apply(lambda x: x[0])
+
+    # features
     features = ['danceability', 'energy', 'loudness', 'valence', 'tempo', 'speechiness', 'acousticness',
                 'instrumentalness', 'duration_ms', 'liveness']
     tracks_features = tracks[features]
     scaler = MinMaxScaler()
-    tracks[features] = tracks_features.apply(lambda x: scaler.fit_transform(x.values.reshape(-1, 1)).flatten())
-    tracks['artists'] = tracks['artists'].apply(ast.literal_eval)
+    tracks.loc[:, features] = scaler.fit_transform(tracks_features)
+
     return tracks
 
 
@@ -165,7 +161,8 @@ def cluster_indexes(tracks: pd.DataFrame, cluster_ids: Set[str]):
     Returns:
     dict: dictionary with indexes and corresponding means
     """
-    filtered_tracks = tracks[tracks['id_artists'].apply(lambda x: any(artist_id in x for artist_id in cluster_ids))]
+    # filtered_tracks = tracks[tracks['id_artists'].apply(lambda x: any(artist_id in x for artist_id in cluster_ids))]
+    filtered_tracks = tracks[tracks['id_artists'].isin(cluster_ids)]
     features = ['danceability', 'energy', 'loudness', 'valence', 'tempo', 'speechiness', 'acousticness',
                 'instrumentalness', 'duration_ms', 'liveness']
     indexes = {}
