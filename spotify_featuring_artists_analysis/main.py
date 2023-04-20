@@ -1,6 +1,7 @@
 from data_reduction import *
 from data_expansion import *
 from data_enrichment import *
+from data_enrichment import generate_collaboration_matrix
 from cluster_metrics import *
 from networkx.algorithms import community
 import networkx as nx
@@ -52,23 +53,31 @@ if __name__ == '__main__':
     louvain_communities = list(community.louvain_partitions(G, seed=20))
     louvain_communities = louvain_communities[-1]
 
-    # data enrichment:
-    # - word-cloud = most important words of each cluster
-    # - radar-graph = qualities and properties extraction
+    cluster_genre_map = {}
     no_genre_count = 0
-    for cluster in louvain_communities:
-        if len(cluster) <= 100:
-            continue
+    for i, cluster in enumerate(louvain_communities):
         top_genres = get_main_n_cluster_genres(nodes, cluster, 1)
-
         if len(top_genres) == 0:
             top_genres = [f'no_genre_{no_genre_count}']
             no_genre_count += 1
+        cluster_genre_map[i] = top_genres[0]
 
-        # word-cloud
-        cluster_word_freq = get_words_frequency(tracks, cluster, functional_words)
-        cluster_words_cloud(spotify_img_mask_path, cluster_word_freq, top_genres[0])
+    # data enrichment:
+    # - word-cloud = most important words of each cluster
+    # - radar-graph = qualities and properties extraction
+    # - collaboration-matrix = degree of collaboration between different clusters
+    # for i, cluster in enumerate(louvain_communities):
+    #
+    #     if len(cluster) <= 100:
+    #         continue
+    #
+    #     # word-cloud
+    #     cluster_word_freq = get_words_frequency(tracks, cluster, functional_words)
+    #     cluster_words_cloud(spotify_img_mask_path, cluster_word_freq, cluster_genre_map[i])
+    #
+    #     # radar-graph
+    #     indexes = cluster_indexes(tracks, cluster)
+    #     generate_indexes_images(indexes, cluster_genre_map[i])
 
-        # radar-graph
-        indexes = cluster_indexes(tracks, cluster)
-        generate_indexes_images(indexes, top_genres[0])
+    # collaboration matrix
+    generate_collaboration_matrix(nodes, louvain_communities, G)

@@ -12,6 +12,8 @@ import pandas as pd
 import os
 import ast
 
+from cluster_metrics import get_main_n_cluster_genres
+
 
 def read_txt_file(path: str):
     """
@@ -223,3 +225,110 @@ def generate_indexes_images(indexes: dict, cluster_name: str):
 
     generate_radar_graph(indexes_a, cluster_name, 'red', 'properties')
     generate_radar_graph(indexes_b, cluster_name, 'green', 'qualities')
+
+
+def normalize_collaborations(results):
+    # Get the maximum and minimum values of the counts
+    max_count = max(results.values())
+    min_count = min(results.values())
+
+    # Normalize each count between 0 and 1
+    normalized_results = {}
+    for pair, count in results.items():
+        normalized_results[pair] = (count - min_count) / (max_count - min_count)
+
+    return normalized_results
+
+
+def filter_clusters_based_on_size(louvain_communities, n_min, n_max):
+    clusters_indexes = []
+    clusters = []
+    for i, c in enumerate(louvain_communities):
+        if n_min < len(c) < n_max:
+            clusters.append(c)
+            clusters_indexes.append(i)
+    return clusters_indexes, clusters
+
+
+def generate_symmetric_collaboration_matrix(normalized_results):
+    # initialize matrix with zeros
+    matrix_size = max([max(k) for k in normalized_results]) + 1  # determine size of the matrix
+    symmetric_matrix = np.zeros((matrix_size, matrix_size))
+
+    # loop over dictionary items and update matrix
+    for k, v in normalized_results.items():
+        symmetric_matrix[k[0], k[1]] = v
+        symmetric_matrix[k[1], k[0]] = v
+
+    for i in range(len(symmetric_matrix[0])):
+        for j in range(len(symmetric_matrix[0])):
+            if i == j:
+                symmetric_matrix[i, j] = 1
+
+    return symmetric_matrix
+
+
+def visualize_collaboration_matrix(symmetric_matrix, labels):
+
+    # Create a figure and axis
+    fig, ax = plt.subplots()
+
+    # Plot the data
+    im = ax.imshow(symmetric_matrix)
+
+    # Add x-axis and y-axis labels
+    ax.set_xticks(np.arange(symmetric_matrix.shape[1]))
+    ax.set_yticks(np.arange(symmetric_matrix.shape[0]))
+
+    ax.set_xticklabels(labels)
+    ax.set_yticklabels(labels)
+
+    # Rotate the x-axis labels for better readability
+    plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+             rotation_mode="anchor")
+
+    # Add a colorbar
+    cbar = ax.figure.colorbar(im, ax=ax)
+
+    # Adjust the margins of the plot
+    plt.subplots_adjust(left=0.15, bottom=0.3, right=0.95, top=0.9)
+
+    # Show the plot
+    plt.savefig(f'./cluster_indexes/collaboration_matrix.png')
+    plt.close()
+
+
+def get_matrix_labels(nodes, clusters_indexes, louvain_communities):
+    labels = []
+    for ci in clusters_indexes:
+        top_genres = get_main_n_cluster_genres(nodes, louvain_communities[ci], 1)
+        labels.append(top_genres[0])
+
+    return labels
+
+
+def generate_collaboration_matrix(nodes, louvain_communities: List[str], G):
+
+    clusters_indexes, clusters = filter_clusters_based_on_size(louvain_communities, 500, 1000)
+
+    results = {}
+    for i in range(len(clusters)):
+        for j in range(i + 1, len(clusters)):
+
+            edge_count = 0
+
+            for n1 in clusters[i]:
+                for n2 in clusters[j]:
+                    if G.has_edge(n1, n2):
+                        edge_count += 1
+
+            if edge_count > 0:
+                results[(i, j)] = edge_count
+
+    normalized_results = normalize_collaborations(results)
+
+    symmetric_matrix = generate_symmetric_collaboration_matrix(normalized_results)
+
+    labels = get_matrix_labels(nodes, clusters_indexes, louvain_communities)
+
+    visualize_collaboration_matrix(symmetric_matrix, labels)
