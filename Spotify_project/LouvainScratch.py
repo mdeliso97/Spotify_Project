@@ -1,28 +1,39 @@
-# Define the Louvain algorithm
+import networkx as nx
+
+
 def louvain_algorithm(G):
     # Initialize the partition with each node in its own community
-    partition = {node: i for i, node in enumerate(G.nodes())}
+    partition = [[node] for node in G.nodes()]
+
     # Initialize the maximum modularity
     max_modularity = -1
 
     # Loop until there are no more improvements in modularity
     while True:
         # Get the communities in the current partition
-        # ToDo: Infinite loop here
-        communities = {c: [n for n in partition if partition[n] == c] for c in set(partition.values())}
+        # communities = {community: [node for node in partition if partition[node] == community] for community in set(partition.values())}
         # Initialize the new partition
         new_partition = partition.copy()
 
         # Loop over each node and its neighbors
         for node in G.nodes():
-            neighbors = list(G.neighbors(node))
+
+            neighbors = list(nx.neighbors(G, node))
 
             # Calculate the modularity gain for each community
             community_gains = {}
-            for c in set(partition.values()):
-                # Calculate the gain in modularity if node was moved to community c
-                new_modularity = modularity_gain(G, communities, c, node, neighbors)
-                community_gains[c] = new_modularity
+            for community in partition:
+                for neighbor in neighbors:
+                    if neighbor in community:
+                        in_bool = True
+                    else:
+                        in_bool = False
+                    if in_bool:
+
+                        # Calculate the gain in modularity if node was moved to community c
+                        new_modularity = modularity_gain(G, community, node)
+                        community = tuple(x for x in community)
+                        community_gains[community] = new_modularity
 
             # Move the node to the community with the maximum modularity gain
             best_community = max(community_gains, key=community_gains.get)
@@ -43,24 +54,34 @@ def louvain_algorithm(G):
 
 # Define the modularity function
 def modularity(G, partition):
-    m = G.number_of_edges()
+    m = len(G.edges)
     q = 0
+    k_c = 0
 
-    for c in set(partition.values()):
-        nodes = [n for n in partition if partition[n] == c]
+    for c in partition:
+        nodes = [n for n in partition if partition[n] == c]  # ToDO: fix this
         subgraph = G.subgraph(nodes)
-        lc = subgraph.number_of_edges()
-        dc = sum(G.degree(nodes).values())
-        q += (lc / m) - ((dc / (2 * m)) ** 2)
+        l_c = len(subgraph.edges)
+        for x in nodes:
+            k_c += G.degree(x)
+        q += (2 * l_c - (k_c ** 2) / m)
+
+        q *= (1/(2 * m))
 
     return q
 
 
 # Define the modularity gain function
-def modularity_gain(G, communities, c, node, neighbors):
-    m = G.number_of_edges()
-    lc = sum([1 for neighbor in neighbors if neighbor in communities[c]])
-    dc = sum(G.degree(communities[c]).values())
-    k = G.degree(node)
-    q = (lc / m) - (((dc + k) / (2 * m)) ** 2) - ((dc / (2 * m)) ** 2)
-    return q
+def modularity_gain(G, community, target):
+    # initialize parameters
+    d_j = 0
+    d_ij = 0
+
+    m = len(G.edges)
+    d_i = G.degree(target)
+    for node in community:
+        d_j += G.degree(node)
+        if (node, target) in G.edges or (target, node) in G.edges:
+            d_ij += 1
+    delta_q = (1/(2 * m)) * (2 * d_ij - (d_i * d_j) / m)
+    return delta_q
