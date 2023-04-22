@@ -1,18 +1,9 @@
-from collections import Counter
-from typing import List, Set
+from typing import Set
 import regex as re
-import plotly.graph_objects as go
-from wordcloud import WordCloud
-import matplotlib.pyplot as plt
-from PIL import Image
-import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-import plotly.express as px
-import pandas as pd
-import os
 import ast
-
 from cluster_metrics import get_main_n_cluster_genres
+from data_visualization import *
 
 
 def read_txt_file(path: str):
@@ -87,40 +78,6 @@ def get_words_frequency(tracks: pd.DataFrame, cluster_ids: List[str], functional
     return word_freq
 
 
-def cluster_words_cloud(img_mask: str, words: Counter, cluster_name: str):
-    """
-    This function produces a words' cloud
-    of the given cluster words considering
-    their frequency
-    Parameters:
-    shape_path (str): path of the image mask
-    words (Counter): dictionary with words' counts
-    """
-    # if cluster songs titles contain 0 words
-    if len(words) == 0:
-        return
-    mask = np.array(Image.open(img_mask))
-    wordcloud = WordCloud(width=800,
-                          height=800,
-                          background_color='white',
-                          # contour_width=0.1,
-                          # contour_color='black',
-                          # background_color='green',
-                          colormap='summer_r',
-                          mask=mask).generate_from_frequencies(words)
-
-    plt.figure(figsize=(8, 8), facecolor=None)
-    plt.imshow(wordcloud)
-    plt.axis("off")
-    plt.tight_layout(pad=0)
-
-    if not os.path.exists("./cluster_indexes"):
-        os.mkdir("./cluster_indexes")
-
-    plt.savefig(f'./cluster_indexes/{cluster_name}_cluster_words_cloud.png')
-    plt.close()
-
-
 def normalize_tracks(tracks: pd.DataFrame):
     """
     This function normalizes the values of
@@ -173,40 +130,7 @@ def cluster_indexes(tracks: pd.DataFrame, cluster_ids: Set[str]):
     return indexes
 
 
-def generate_radar_graph(indexes, cluster_name: str, color: str, graph_type: str):
-    df = pd.DataFrame(dict(
-        r=list(indexes.values()) + [list(indexes.values())[0]],  # add the first value at the end of the `r` array
-        theta=list(indexes.keys()) + [list(indexes.keys())[0]]))  # add the first key at the end of the `theta` array
-
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatterpolar(
-        r=df['r'],
-        theta=df['theta'],
-        fill='toself',
-        line=dict(color=color),
-    ))
-
-    fig.update_layout(
-        polar=dict(
-            radialaxis=dict(
-                visible=True,
-                range=[0, 1]
-            )),
-        showlegend=False,
-        title={
-            'text': f'Music {graph_type}: {cluster_name}',
-            'x': 0.5,
-            'y': 0.95,
-            'xanchor': 'center',
-            'yanchor': 'top',
-            'font': {'size': 16}
-        }
-    )
-    fig.write_image(f'./cluster_indexes/{cluster_name}_cluster_{graph_type}.png')
-
-
-def generate_indexes_images(indexes: dict, cluster_name: str):
+def generate_indexes_images(indexes: dict, cluster_name: str, path):
     """
     This function plots a radar graph
     with mean indexes
@@ -220,11 +144,8 @@ def generate_indexes_images(indexes: dict, cluster_name: str):
     indexes_a = dict((f, indexes[f]) for f in indexes if f in features_a)
     indexes_b = dict((f, indexes[f]) for f in indexes if f in features_b)
 
-    if not os.path.exists("./cluster_indexes"):
-        os.mkdir("./cluster_indexes")
-
-    generate_radar_graph(indexes_a, cluster_name, 'red', 'properties')
-    generate_radar_graph(indexes_b, cluster_name, 'green', 'qualities')
+    generate_radar_graph(indexes_a, cluster_name, 'red', 'properties', path)
+    generate_radar_graph(indexes_b, cluster_name, 'green', 'qualities', path)
 
 
 def normalize_collaborations(results):
@@ -268,36 +189,6 @@ def generate_symmetric_collaboration_matrix(normalized_results):
     return symmetric_matrix
 
 
-def visualize_collaboration_matrix(symmetric_matrix, labels):
-
-    # Create a figure and axis
-    fig, ax = plt.subplots()
-
-    # Plot the data
-    im = ax.imshow(symmetric_matrix)
-
-    # Add x-axis and y-axis labels
-    ax.set_xticks(np.arange(symmetric_matrix.shape[1]))
-    ax.set_yticks(np.arange(symmetric_matrix.shape[0]))
-
-    ax.set_xticklabels(labels)
-    ax.set_yticklabels(labels)
-
-    # Rotate the x-axis labels for better readability
-    plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
-             rotation_mode="anchor")
-
-    # Add a colorbar
-    cbar = ax.figure.colorbar(im, ax=ax)
-
-    # Adjust the margins of the plot
-    plt.subplots_adjust(left=0.15, bottom=0.3, right=0.95, top=0.9)
-
-    # Show the plot
-    plt.savefig(f'./cluster_indexes/collaboration_matrix.png')
-    plt.close()
-
-
 def get_matrix_labels(nodes, clusters_indexes, louvain_communities):
     labels = []
     for ci in clusters_indexes:
@@ -307,9 +198,9 @@ def get_matrix_labels(nodes, clusters_indexes, louvain_communities):
     return labels
 
 
-def generate_collaboration_matrix(nodes, louvain_communities: List[str], G):
+def generate_collaboration_matrix(nodes, louvain_communities: List[str], G, path, lower_bound, upper_bound):
 
-    clusters_indexes, clusters = filter_clusters_based_on_size(louvain_communities, 500, 1000)
+    clusters_indexes, clusters = filter_clusters_based_on_size(louvain_communities, lower_bound, upper_bound)
 
     results = {}
     for i in range(len(clusters)):
@@ -331,4 +222,6 @@ def generate_collaboration_matrix(nodes, louvain_communities: List[str], G):
 
     labels = get_matrix_labels(nodes, clusters_indexes, louvain_communities)
 
-    visualize_collaboration_matrix(symmetric_matrix, labels)
+    visualize_collaboration_matrix(symmetric_matrix, labels, path)
+
+    visualize_clusters(clusters, labels, symmetric_matrix, path)
