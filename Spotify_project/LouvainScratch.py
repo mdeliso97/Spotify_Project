@@ -84,4 +84,5 @@ def modularity_gain(G, community, target):
         if (node, target) in G.edges or (target, node) in G.edges:
             d_ij += 1
     delta_q = (1/(2 * m)) * (2 * d_ij - (d_i * d_j) / m)
+
     return delta_q
