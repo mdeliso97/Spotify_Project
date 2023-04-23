@@ -23,3 +23,31 @@ def get_main_n_cluster_genres(nodes: pd.DataFrame, cluster_nodes_ids: List[str],
     genres_count = Counter(genres)
     genre_list = [genre[0] for genre in genres_count.most_common(n)]
     return genre_list
+
+
+def generate_cluster_genre_map(nodes: pd.DataFrame, louvain_communities: List[List[str]]):
+    """
+    This functions generates a map linking each cluster
+    with its main genre
+    Parameters:
+    nodes (pd.DataFrame): dataframe containing the network nodes
+    louvain_communities (List[List[str]]): list of clusters
+    Returns:
+    Map[str,str]: map linking each cluster with its main genre
+    """
+    cluster_genre_map = {}
+    no_genre_count = 0
+
+    # iterate over each cluster
+    for i, cluster in enumerate(louvain_communities):
+
+        top_genres = get_main_n_cluster_genres(nodes, cluster, 1)  # compute top-n cluster genre
+
+        # if no top-genre assign 'no_genre' placeholder
+        if len(top_genres) == 0:
+            top_genres = [f'no_genre_{no_genre_count}']
+            no_genre_count += 1
+
+        cluster_genre_map[i] = top_genres[0]
+
+    return cluster_genre_map

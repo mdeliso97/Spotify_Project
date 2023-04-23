@@ -7,7 +7,6 @@ from data_visualization import *
 from networkx.algorithms import community
 import networkx as nx
 
-
 if __name__ == '__main__':
 
     # path to data
@@ -58,14 +57,8 @@ if __name__ == '__main__':
     louvain_communities = list(community.louvain_partitions(G, seed=20))
     louvain_communities = louvain_communities[-1]
 
-    cluster_genre_map = {}
-    no_genre_count = 0
-    for i, cluster in enumerate(louvain_communities):
-        top_genres = get_main_n_cluster_genres(nodes, cluster, 1)
-        if len(top_genres) == 0:
-            top_genres = [f'no_genre_{no_genre_count}']
-            no_genre_count += 1
-        cluster_genre_map[i] = top_genres[0]
+    # generate map cluster_id->genre
+    cluster_genre_map = generate_cluster_genre_map(nodes, louvain_communities)
 
     # data enrichment & data visualization:
     for i, cluster in enumerate(louvain_communities):
@@ -83,4 +76,4 @@ if __name__ == '__main__':
 
     # - collaboration matrix = degree of collaboration between different clusters
     # - clusters visualization = clusters visualization
-    # generate_collaboration_matrix(nodes, louvain_communities, G, data_visualization_path, 500, 1000)
+    generate_collaboration_matrix(nodes, louvain_communities, G, data_visualization_path, 500, 1000)
