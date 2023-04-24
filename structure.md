@@ -36,9 +36,9 @@ them.
 
 ```NodeImportance.py```
 This class takes as inputs a graph G and a list of lists of communities. It is responsible to find for each community
-the best nodes in each centrality measure: degree centrality, closeness centrality and betweenness centrality. Finally,
-the algorithm outputs a dictionary of dictionaries, which holds a dictionary of indexed clusters (following the order of 
-the input) with inside 3 dictionaries of the best node for each centrality category.
+the best/worst nodes in each centrality measure: degree centrality, closeness centrality and betweenness centrality.
+Finally, the algorithm outputs a dictionary of dictionaries, which holds a dictionary of indexed clusters (following the 
+order of the input) with inside 3 dictionaries of the best node for each centrality category.
 
 ```SimulationNetwork.py```
 This is just a sample of a network of which we previously calculated the solution. It is a reference to compare the 

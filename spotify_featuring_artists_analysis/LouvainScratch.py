@@ -32,12 +32,23 @@ def louvain_algorithm(G):
 
                         # Calculate the gain in modularity if node was moved to community c
                         new_modularity = modularity_gain(G, community, node)
-                        community = tuple(x for x in community)
-                        community_gains[community] = new_modularity
+                        community_gains["%s" % str(community)] = new_modularity
 
             # Move the node to the community with the maximum modularity gain
             best_community = max(community_gains, key=community_gains.get)
-            new_partition[node] = best_community
+            count = 0
+            for com in new_partition:
+                if str(com) == best_community:
+                    new_partition[count].append(node)
+                    for com_search in new_partition:
+                        if node in com_search and str(com_search) != best_community:
+                            com_search.remove(node)
+                            if len(com_search) == 0:
+                                new_partition.remove(com_search)
+                            break
+                    break
+                else:
+                    count += 1
 
         # If there is no improvement in modularity, stop looping
         new_modularity = modularity(G, new_partition)
@@ -59,7 +70,7 @@ def modularity(G, partition):
     k_c = 0
 
     for c in partition:
-        nodes = [n for n in partition if partition[n] == c]  # ToDO: fix this
+        nodes = [n for n in c]
         subgraph = G.subgraph(nodes)
         l_c = len(subgraph.edges)
         for x in nodes:
