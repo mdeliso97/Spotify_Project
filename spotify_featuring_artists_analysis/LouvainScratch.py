@@ -1,4 +1,5 @@
 import networkx as nx
+import copy
 
 
 def louvain_algorithm(G):
@@ -10,19 +11,18 @@ def louvain_algorithm(G):
 
     # Loop until there are no more improvements in modularity
     while True:
-        # Get the communities in the current partition
-        # communities = {community: [node for node in partition if partition[node] == community] for community in set(partition.values())}
+
         # Initialize the new partition
-        new_partition = partition.copy()
+        new_partition = copy.deepcopy(partition)
 
         # Loop over each node and its neighbors
-        for node in G.nodes():
+        for node in sorted(G.nodes()):
 
             neighbors = list(nx.neighbors(G, node))
 
             # Calculate the modularity gain for each community
             community_gains = {}
-            for community in partition:
+            for community in new_partition:
                 for neighbor in neighbors:
                     if neighbor in community:
                         in_bool = True
@@ -36,19 +36,22 @@ def louvain_algorithm(G):
 
             # Move the node to the community with the maximum modularity gain
             best_community = max(community_gains, key=community_gains.get)
+            for com_search in new_partition:
+                if node in com_search and str(com_search) != best_community:
+                    com_search.remove(node)
+                    if len(com_search) == 0:
+                        new_partition.remove(com_search)
+                    break
+
             count = 0
             for com in new_partition:
-                if str(com) == best_community:
+                if str(com) == best_community and node not in com:
                     new_partition[count].append(node)
-                    for com_search in new_partition:
-                        if node in com_search and str(com_search) != best_community:
-                            com_search.remove(node)
-                            if len(com_search) == 0:
-                                new_partition.remove(com_search)
-                            break
                     break
                 else:
                     count += 1
+                    if node in com:
+                        break
 
         # If there is no improvement in modularity, stop looping
         new_modularity = modularity(G, new_partition)
@@ -77,7 +80,7 @@ def modularity(G, partition):
             k_c += G.degree(x)
         q += (2 * l_c - (k_c ** 2) / m)
 
-        q *= (1/(2 * m))
+    q *= (1/(2 * m))
 
     return q
 
