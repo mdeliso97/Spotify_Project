@@ -78,7 +78,7 @@ def modularity(G, partition):
         l_c = len(subgraph.edges)
         for x in nodes:
             k_c += G.degree(x)
-        q += (2 * l_c - (k_c ** 2) / m)
+        q += (2 * l_c - ((k_c ** 2) / (2 * m)))
 
     q *= (1/(2 * m))
 
@@ -97,6 +97,6 @@ def modularity_gain(G, community, target):
         d_j += G.degree(node)
         if (node, target) in G.edges or (target, node) in G.edges:
             d_ij += 1
-    delta_q = (1/(2 * m)) * (2 * d_ij - (d_i * d_j) / m)
+    delta_q = (1/(2 * m)) * (2 * d_ij - ((d_i * d_j) / m))
 
     return delta_q

@@ -1,4 +1,5 @@
 import networkx as nx
+import LouvainScratch
 
 
 '''
@@ -28,12 +29,13 @@ def generate_graph():
 
     # Example graph for testing
     G = nx.Graph()
+    G.add_edges_from({(0, 2), (0, 3), (0, 4), (0, 5)})
     G.add_edges_from({(1, 2), (1, 4), (1, 7)})
     G.add_edges_from({(2, 1), (2, 4), (2, 5), (2, 0), (2, 6)})
     G.add_edges_from({(3, 0), (3, 7)})
     G.add_edges_from({(4, 1), (4, 2), (4, 0), (4, 10)})
     G.add_edges_from({(5, 2), (5, 0), (5, 7), (5, 11)})
-    G.add_edges_from({(6, 2), (6, 7), (6, 1)})
+    G.add_edges_from({(6, 2), (6, 7), (6, 11)})
     G.add_edges_from({(7, 6), (7, 5), (7, 1), (7, 3)})
     G.add_edges_from({(8, 15), (8, 14), (8, 9), (8, 10), (8, 11)})
     G.add_edges_from({(9, 8), (9, 12), (9, 14)})
@@ -45,3 +47,10 @@ def generate_graph():
     G.add_edges_from({(15, 8)})
 
     return G
+
+
+if __name__ == "__main__":
+    G = generate_graph()
+    partitions = LouvainScratch.louvain_algorithm(G)
+    print(partitions)
+
