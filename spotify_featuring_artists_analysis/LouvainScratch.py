@@ -18,6 +18,14 @@ def louvain_algorithm(G):
         # Loop over each node and its neighbors
         for node in sorted(G.nodes()):
 
+            # Step 1: remove node from its community
+            for com_search in new_partition:
+                if node in com_search:
+                    com_search.remove(node)
+                    if len(com_search) == 0:
+                        new_partition.remove(com_search)
+                    break
+
             neighbors = list(nx.neighbors(G, node))
 
             # Calculate the modularity gain for each community
