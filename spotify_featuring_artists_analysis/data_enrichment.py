@@ -149,15 +149,21 @@ def generate_indexes_images(indexes: dict, cluster_name: str, path):
 
 
 def normalize_collaborations(results):
-    # Get the maximum and minimum values of the counts
-    max_count = max(results.values())
-    min_count = min(results.values())
 
-    # Normalize each count between 0 and 1
     normalized_results = {}
-    for pair, count in results.items():
-        normalized_results[pair] = (count - min_count) / (max_count - min_count)
+    counts = [count for pair, count in results.items()]
 
+    # Get the maximum and minimum values of the counts
+    min_count = min(counts)
+    max_count = max(counts)
+
+    if max_count - min_count == 0:
+        # Handle the case where the range is zero
+        normalized_results = {pair: 0 for pair, count in results.items()}
+    else:
+        # Normalize each count between 0 and 1
+        for pair, count in results.items():
+            normalized_results[pair] = (count - min_count) / (max_count - min_count)
     return normalized_results
 
 
