@@ -5,9 +5,17 @@ import copy
 def louvain_algorithm(G):
     # Initialize the partition with each node in its own community
     partition = [[node] for node in G.nodes()]
+    ht = {}
 
     # Initialize the maximum modularity
     max_modularity = -1
+
+    count = 0
+
+    # maps each node to its position in new_partition
+    for el in partition:
+        ht[el[0]] = count
+        count += 1
 
     # Loop until there are no more improvements in modularity
     while True:
@@ -19,42 +27,33 @@ def louvain_algorithm(G):
         for node in sorted(G.nodes()):
 
             # Step 1: remove node from its community
-            for com_search in new_partition:
-                if node in com_search:
-                    com_search.remove(node)
-                    if len(com_search) == 0:
-                        new_partition.remove(com_search)
-                    break
+            pos = ht[node]
+            new_partition[pos].remove(node)
+            if len(new_partition[pos]) == 0:
+                new_partition.remove(new_partition[pos])
+                for x in ht:
+                    if ht[x] > pos:
+                        ht[x] -= 1
 
             neighbors = list(nx.neighbors(G, node))
 
             # Calculate the modularity gain for each community
             community_gains = {}
-            for community in new_partition:
-                for neighbor in neighbors:
-                    if neighbor in community:
-                        in_bool = True
-                    else:
-                        in_bool = False
-                    if in_bool:
+            for neighbor in neighbors:
+                pos_neighbor = ht[neighbor]
 
-                        # Calculate the gain in modularity if node was moved to community c
-                        new_modularity = modularity_gain(G, community, node)
-                        community_gains["%s" % str(community)] = new_modularity
+                # Calculate the gain in modularity if node was moved to community c
+                new_modularity = modularity_gain(G, new_partition[pos_neighbor], node)
+                community_gains["%s" % str(new_partition[pos_neighbor])] = new_modularity
 
             # Move the node to the community with the maximum modularity gain
             best_community = max(community_gains, key=community_gains.get)
-            for com_search in new_partition:
-                if node in com_search and str(com_search) != best_community:
-                    com_search.remove(node)
-                    if len(com_search) == 0:
-                        new_partition.remove(com_search)
-                    break
 
             count = 0
             for com in new_partition:
                 if str(com) == best_community and node not in com:
                     new_partition[count].append(node)
+                    ht[node] = count
                     break
                 else:
                     count += 1
