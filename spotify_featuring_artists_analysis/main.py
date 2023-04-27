@@ -27,35 +27,38 @@ if __name__ == '__main__':
     # create directory for data visualization
     create_visualization_directory(data_visualization_path)
 
-    # normalize tracks data in [0;1] range
+    # data cleaning
+    # - normalize tracks data in [0;1] range
     tracks = normalize_tracks(tracks)
 
-    # drop duplicates
+    # - drop duplicates
     nodes, edges = drop_duplicates(nodes, edges)
 
-    # remove very unpopular artists
+    # - remove very unpopular artists
     # popularity_score = 75  # minimum popularity score required
     # artists_to_keep, _ = get_artists_popularity_larger_or_equal_than_n(nodes, popularity_score)
     # nodes = filter_nodes_on_ids(nodes, artists_to_keep)
     # edges = filter_edges_on_ids(edges, artists_to_keep)
 
-    # remove artists with few featuring
+    # - remove artists with few featuring
     n_min_featuring = 30  # minimum number of featuring we want to consider
     n_max_featuring = 80  # max number of featuring we want to consider
     artists_to_keep = get_artists_based_on_n_featuring(edges, n_min_featuring, n_max_featuring)
     nodes = filter_nodes_on_ids(nodes, artists_to_keep)
     edges = filter_edges_on_ids(edges, artists_to_keep)
 
-    # add columns to nodes with number of featuring and hits
+    # data expansion
+    # - add columns to nodes with number of featuring and hits
     # count_collaborations(nodes, edges)
     # count_chart_hits(nodes)
 
-    # instantiate networkx graph
+    # data exploration
+    # - instantiate networkx graph
     G = nx.Graph()
     for _, edge in edges.iterrows():
         G.add_edge(edge['id_0'], edge['id_1'])
 
-    # louvain clustering algorithm
+    # - louvain clustering algorithm
     louvain_communities = louvain_algorithm(G)
 
     # BUILT-IN: louvain clustering algorithm
@@ -65,18 +68,18 @@ if __name__ == '__main__':
     # generate map cluster_id -> genre
     cluster_genre_map = generate_cluster_genre_map(nodes, louvain_communities)
 
-    # data enrichment & data visualization:
+    # data enrichment & visualization:
     for i, cluster in enumerate(louvain_communities):
 
         # if cluster is too small don't consider it
         if len(cluster) <= 100:
             continue
 
-        # word-cloud = most important words of each cluster
+        # - word-cloud = most important words of each cluster
         cluster_word_freq = get_words_frequency(tracks, cluster, functional_words)
         cluster_words_cloud(spotify_img_mask_path, cluster_word_freq, cluster_genre_map[i], data_visualization_path)
 
-        # radar-graph = songs qualities and properties
+        # - radar-graph = songs qualities and properties
         indexes = cluster_indexes(tracks, cluster)
         generate_indexes_images(indexes, cluster_genre_map[i], data_visualization_path)
 

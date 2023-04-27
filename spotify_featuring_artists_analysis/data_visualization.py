@@ -12,6 +12,11 @@ import plotly.express as px
 
 
 def create_visualization_directory(path):
+    """
+    Create a directory in the given path if it does not already exist
+    Parameters:
+    path (str): The path of the directory to create
+    """
     if not os.path.exists(path):
         os.mkdir(path)
 
@@ -32,9 +37,6 @@ def cluster_words_cloud(img_mask: str, words: Counter, cluster_name: str, path: 
     wordcloud = WordCloud(width=800,
                           height=800,
                           background_color='white',
-                          # contour_width=0.1,
-                          # contour_color='black',
-                          # background_color='green',
                           colormap='summer_r',
                           mask=mask).generate_from_frequencies(words)
 
@@ -42,13 +44,21 @@ def cluster_words_cloud(img_mask: str, words: Counter, cluster_name: str, path: 
     plt.imshow(wordcloud)
     plt.axis("off")
     plt.tight_layout(pad=0)
-
     plt.savefig(f'{path}/{cluster_name}_cluster_words_cloud.png')
     plt.close()
 
 
 def visualize_clusters(clusters: List[str], labels: List[str], symmetric_matrix, path):
-
+    """
+    Creates a bubble chart visualization of the clusters using the MDS algorithm to reduce the dimensions of the
+    similarity matrix to 2D, then plots the size of each cluster as the size of the bubbles and the label of the
+    cluster as the color of the bubbles. The resulting plot is saved to the given path.
+    Params:
+    clusters (List[str]): The list of cluster names
+    labels (List[str]): The list of cluster labels
+    symmetric_matrix (numpy.ndarray): The similarity matrix
+    path (str): The path to save the resulting plot
+    """
     cluster_sizes = [len(c) for c in clusters]
 
     # Calculate the x and y coordinates based on the distance matrix
@@ -76,9 +86,15 @@ def visualize_clusters(clusters: List[str], labels: List[str], symmetric_matrix,
 
 
 def visualize_collaboration_matrix(symmetric_matrix, labels, path):
-
+    """
+    Visualizes the collaboration matrix as an image with labeled
+    axes and a colorbar. Saves the resulting image to a file.
+    Params:
+    symmetric_matrix: A 2D numpy array representing the symmetric collaboration matrix
+    labels: A list of strings representing the labels for the rows and columns of the matrix
+    path: A string representing the path to the directory where the resulting image should be saved
+    """
     # Create a figure and axis
-    # fig, ax = plt.subplots()
     fig, ax = plt.subplots(figsize=(12, 12))
 
     # Plot the data
@@ -109,6 +125,16 @@ def visualize_collaboration_matrix(symmetric_matrix, labels, path):
 
 
 def generate_radar_graph(indexes, cluster_name: str, color: str, graph_type: str, path: str):
+    """
+    The generate_radar_graph function generates a radar graph using the plotly
+    library based on the given indexes, cluster name, color, graph type, and path.
+    Parameters:
+    indexes (dictionary): A dictionary containing the values and labels for each axis of the radar graph.
+    cluster_name (str): The name of the cluster to be used in the title of the graph.
+    color (str): The color of the graph line.
+    graph_type (str): The type of graph being generated, e.g., similarity, dissimilarity.
+    path (str): The file path to save the generated graph.
+    """
     df = pd.DataFrame(dict(
         r=list(indexes.values()) + [list(indexes.values())[0]],  # add the first value at the end of the `r` array
         theta=list(indexes.keys()) + [list(indexes.keys())[0]]))  # add the first key at the end of the `theta` array

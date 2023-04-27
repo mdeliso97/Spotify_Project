@@ -40,23 +40,11 @@ def get_words_frequency(tracks: pd.DataFrame, cluster_ids: List[str], functional
     the words in the title of the given songs
     Parameters:
     tracks (pd.DataFrame): dataframe containing tracks
-    tracks_ids (List[str]): list of songs ids
+    cluster_ids (List[str]): list of artists' ids part of the cluster
     functional_words (List[str]): functional words list
     Returns:
     Counter: dictionary with words' counts
     """
-    # artist_name_obj = tracks.artists.values
-
-    # artists_set = set()
-    # for s in artist_name_obj:
-    #     # Extract artist names using regex
-    #     artists_names = re.findall(r"'([\w\s]+)'", s)
-    #
-    #     # Add artist names to set
-    #     for artist_names in artists_names:
-    #         for name in artist_names.split():
-    #             artists_set.add(name.lower())
-
     filtered_tracks = tracks[tracks['id_artists'].isin(cluster_ids)]
 
     # Normalize and remove words
@@ -65,9 +53,6 @@ def get_words_frequency(tracks: pd.DataFrame, cluster_ids: List[str], functional
     all_titles = re.sub(r'\d+', '', all_titles)  # remove digits
     all_titles = all_titles.lower()  # convert to lowercase
     all_titles = re.sub(r"[^\w\s']+", '', all_titles)  # remove special characters
-
-    # for name in artists_set:
-    #     all_titles = all_titles.replace(name, '')  # remove artist names
 
     # remove functional words
     all_words = all_titles.split()
@@ -87,7 +72,7 @@ def normalize_tracks(tracks: pd.DataFrame):
     Returns:
     pd.DataFrame: dataframe containing normalized tracks
     """
-    tracks = tracks.copy()
+    tracks = tracks.copy()  # copy dataframe
 
     # name
     tracks = tracks.dropna(subset=['name'])  # drops songs with no title
@@ -116,11 +101,10 @@ def cluster_indexes(tracks: pd.DataFrame, cluster_ids: Set[str]):
     of the songs of the given artists
     Parameters:
     tracks (pd.DataFrame): dataframe containing tracks
-    cluster_artists_ids (List[str]): list of artists ids
+    cluster_ids (Set[str]): list of artists' ids part of the cluster
     Returns:
     dict: dictionary with indexes and corresponding means
     """
-    # filtered_tracks = tracks[tracks['id_artists'].apply(lambda x: any(artist_id in x for artist_id in cluster_ids))]
     filtered_tracks = tracks[tracks['id_artists'].isin(cluster_ids)]
     features = ['danceability', 'energy', 'loudness', 'valence', 'tempo', 'speechiness', 'acousticness',
                 'instrumentalness', 'duration_ms', 'liveness']
@@ -130,13 +114,14 @@ def cluster_indexes(tracks: pd.DataFrame, cluster_ids: Set[str]):
     return indexes
 
 
-def generate_indexes_images(indexes: dict, cluster_name: str, path):
+def generate_indexes_images(indexes: dict, cluster_name: str, path: str):
     """
     This function plots a radar graph
     with mean indexes
     Parameters:
     indexes (dict): dictionary with indexes and corresponding means
     cluster_name (str): name of the given cluster
+    path (str): path where to save images
     """
     features_a = ['danceability', 'energy', 'loudness', 'valence', 'tempo']
     features_b = ['speechiness', 'acousticness', 'instrumentalness']
@@ -149,7 +134,17 @@ def generate_indexes_images(indexes: dict, cluster_name: str, path):
 
 
 def normalize_collaborations(results):
-
+    """
+    Normalizes the counts of collaborations in the given results
+    dictionary to be between 0 and 1, and returns a new dictionary
+    with the normalized counts.
+    Parameters:
+    results (dict): A dictionary where each key is a pair of
+    collaborators, and the corresponding value is the number
+    of collaborations between those two collaborators.
+    Returns:
+    A new dictionary with the same keys as the input dictionary, but with the values normalized to be between 0 and 1.
+    """
     normalized_results = {}
     counts = [count for pair, count in results.items()]
 
@@ -168,6 +163,20 @@ def normalize_collaborations(results):
 
 
 def filter_clusters_based_on_size(louvain_communities, n_min, n_max):
+    """
+    Filters a list of Louvain communities based on their size,
+    returning only the communities with sizes between
+    the given `n_min` and `n_max` parameters.
+    Parameters:
+    louvain_communities (list): A list of lists, where each
+    inner list contains the indices of nodes
+    belonging to the corresponding Louvain community
+    n_min (int): The minimum size of a community to be included in the filtered list
+    n_max (int): The maximum size of a community to be included in the filtered list
+    Returns:
+    A tuple containing two lists: the indices of the filtered communities within
+    the original `louvain_communities` list, and the corresponding communities themselves.
+    """
     clusters_indexes = []
     clusters = []
     for i, c in enumerate(louvain_communities):
@@ -178,6 +187,18 @@ def filter_clusters_based_on_size(louvain_communities, n_min, n_max):
 
 
 def generate_symmetric_collaboration_matrix(normalized_results):
+    """
+    Creates a symmetric matrix from a dictionary of normalized collaboration counts.
+    Parameters:
+    normalized_results (dict): A dictionary containing normalized collaboration counts,
+    where the keys are tuples representing pairs of collaborators and the values are
+    floats between 0 and 1.
+    Returns:
+    numpy.ndarray: A symmetric matrix of size n x n, where n is the largest value in any
+    tuple key in normalized_results plus 1. The diagonal elements of the matrix are all
+    1, and the off-diagonal elements correspond to the values in normalized_results
+    for the corresponding tuple keys.
+    """
     # initialize matrix with zeros
     matrix_size = max([max(k) for k in normalized_results]) + 1  # determine size of the matrix
     symmetric_matrix = np.zeros((matrix_size, matrix_size))
@@ -196,16 +217,37 @@ def generate_symmetric_collaboration_matrix(normalized_results):
 
 
 def get_matrix_labels(nodes, clusters_indexes, louvain_communities):
+    """
+    Returns a list of labels for the rows and columns of a matrix, based on the genres
+    of the top node in each cluster.
+    Parameters:
+    nodes (list): A list of nodes in the graph, where each node is represented as a
+    dictionary with various properties including a 'genre' field.
+    clusters_indexes (list): A list of integers representing the indexes of clusters to
+    include in the labels.
+    louvain_communities (list): A list of lists representing the nodes in each cluster.
+    Returns:
+    list: A list of strings representing the top genre for each cluster. The order of
+    the strings corresponds to the order of the clusters in the clusters_indexes list.
+    """
     labels = []
     for ci in clusters_indexes:
         top_genres = get_main_n_cluster_genres(nodes, louvain_communities[ci], 1)
         labels.append(top_genres[0])
-
     return labels
 
 
 def generate_collaboration_matrix(nodes, louvain_communities: List[str], G, path, lower_bound, upper_bound):
-
+    """
+    Generates a collaboration matrix for the given nodes and their corresponding communities.
+    Parameters:
+    nodes (list): List of node ids
+    louvain_communities (List[str]): List of community labels
+    G (networkx.Graph): Networkx graph object
+    path (str): Path to save the visualization
+    lower_bound (int): Minimum size of a community to be considered
+    upper_bound (int): Maximum size of a community to be considered
+    """
     clusters_indexes, clusters = filter_clusters_based_on_size(louvain_communities, lower_bound, upper_bound)
 
     results = {}
