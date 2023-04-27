@@ -29,11 +29,6 @@ def louvain_algorithm(G):
             # Step 1: remove node from its community
             pos = ht[node]
             new_partition[pos].remove(node)
-            if len(new_partition[pos]) == 0:
-                new_partition.remove(new_partition[pos])
-                for x in ht:
-                    if ht[x] > pos:
-                        ht[x] -= 1
 
             neighbors = list(nx.neighbors(G, node))
 
@@ -49,16 +44,13 @@ def louvain_algorithm(G):
             # Move the node to the community with the maximum modularity gain
             best_community = max(community_gains, key=community_gains.get)
 
-            count = 0
-            for com in new_partition:
-                if str(com) == best_community and node not in com:
-                    new_partition[count].append(node)
-                    ht[node] = count
-                    break
-                else:
-                    count += 1
-                    if node in com:
-                        break
+            com_pos = best_community
+            com_pos_list = eval(com_pos)
+            result = com_pos_list[0]
+            com_pos = ht[result]
+
+            new_partition[com_pos].append(node)
+            ht[node] = com_pos
 
         # If there is no improvement in modularity, stop looping
         new_modularity = modularity(G, new_partition)
@@ -70,7 +62,9 @@ def louvain_algorithm(G):
         max_modularity = new_modularity
 
     # Return the final partition
-    return partition
+    partition_final = [partition[int(pos)] for pos in set(ht.values())]
+
+    return partition_final
 
 
 # Define the modularity function
