@@ -1,6 +1,15 @@
 import networkx as nx
 import copy
 
+'''
+THis class implements our version of the algorithm louvain. It is divided in three main methods: the main louvain 
+algorithm which iterates through all 4 steps defined in the lecture. The louvain_algorithm uses a sort of hash table
+called ht which takes track of the nodes positions. This is an optimization done to overcome to the problem that lists
+cannot search/scan for an element in the list in O(1) time complexity. The modularity and modularity gain methods 
+implement the calculation for the modularities seen in class. In addition, the SimulationNetwork class was used to test 
+the implementation, which gave the exact same result as given in the simulation.
+'''
+
 
 def louvain_algorithm(G):
     # Initialize the partition with each node in its own community
@@ -63,7 +72,6 @@ def louvain_algorithm(G):
 
     # Return the final partition
     partition_final = [partition[int(pos)] for pos in set(ht.values())]
-
     return partition_final
 
 

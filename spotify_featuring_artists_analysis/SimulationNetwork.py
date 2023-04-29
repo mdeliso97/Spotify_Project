@@ -3,6 +3,9 @@ import LouvainScratch
 
 
 '''
+This class is just use to test out the Louvain Scratch algorithm, here below is given the expected result of the louvain
+algorithm.
+
 Expected solution:
 
 First Iteration:
