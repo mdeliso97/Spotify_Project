@@ -41,8 +41,8 @@ if __name__ == '__main__':
     # edges = filter_edges_on_ids(edges, artists_to_keep)
 
     # - remove artists with few featuring
-    n_min_featuring = 30  # minimum number of featuring we want to consider
-    n_max_featuring = 80  # max number of featuring we want to consider
+    n_min_featuring = 22  # minimum number of featuring we want to consider
+    n_max_featuring = 101  # max number of featuring we want to consider
     artists_to_keep = get_artists_based_on_n_featuring(edges, n_min_featuring, n_max_featuring)
     nodes = filter_nodes_on_ids(nodes, artists_to_keep)
     edges = filter_edges_on_ids(edges, artists_to_keep)
@@ -86,5 +86,5 @@ if __name__ == '__main__':
     # - collaboration matrix = degree of collaboration between different clusters
     # - clusters visualization = clusters visualization
     min_len = 9  # minimum cluster length for cluster to be considered
-    max_len = 200  # # maximum cluster length for cluster to be considered
+    max_len = 357  # # maximum cluster length for cluster to be considered
     generate_collaboration_matrix(nodes, louvain_communities, G, data_visualization_path, min_len, max_len)

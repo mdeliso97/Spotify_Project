@@ -43,7 +43,9 @@ def cluster_words_cloud(img_mask: str, words: Counter, cluster_name: str, path: 
     plt.figure(figsize=(8, 8), facecolor=None)
     plt.imshow(wordcloud)
     plt.axis("off")
+    plt.title(f'Most Influential Words: {cluster_name}', fontsize=20)
     plt.tight_layout(pad=0)
+    plt.subplots_adjust(top=0.9)  # adjust the top margin
     plt.savefig(f'{path}/{cluster_name}_cluster_words_cloud.png')
     plt.close()
 
@@ -79,6 +81,9 @@ def visualize_clusters(clusters: List[str], labels: List[str], symmetric_matrix,
     fig.update_layout(showlegend=False)
     fig.update_xaxes(showticklabels=False)
     fig.update_yaxes(showticklabels=False)
+    fig.update_xaxes(zeroline=False)
+    fig.update_yaxes(zeroline=False)
+
     fig.update_layout(title="Clusters")
 
     # Show the plot
