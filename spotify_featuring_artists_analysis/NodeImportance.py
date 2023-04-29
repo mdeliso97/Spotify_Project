@@ -17,6 +17,10 @@ def Importance(G, communities):
 
     for community in communities:
 
+        # if cluster is too small don't consider it
+        if len(community) <= 100:
+            continue
+
         # initialize dictionaries and cluster index
         id_cluster = communities.index(community)
         betweenness_max_dict = {}

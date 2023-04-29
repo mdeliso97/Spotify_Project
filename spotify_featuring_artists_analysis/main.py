@@ -10,6 +10,7 @@ from LouvainScratch import louvain_algorithm
 from NodeImportance import Importance
 from data_importance import data_importance
 from Timer import Timer
+from cluster_counter import cluster_counter
 
 if __name__ == '__main__':
 
@@ -65,8 +66,17 @@ if __name__ == '__main__':
     # - louvain clustering algorithm
     time_elapsed.start()
     louvain_communities = louvain_algorithm(G)
+
+    # - runtime-louvain = compare runtime louvain built-in with louvain-scratch
     print("Louvain scratch Runtime:")
     time_elapsed.stop()
+
+    # - community-detection-louvain = compare communities of built-in louvain and louvain-scratch
+    print("There were found %d communities in Louvain scratch" % len(louvain_communities))
+
+    counted_clusters = cluster_counter(louvain_communities)
+    print(
+        "The first value is # of nodes in the cluster and the second is # of clusters with that length: \n" + str(counted_clusters))
 
     # BUILT-IN: louvain clustering algorithm
     time_elapsed.start()
@@ -74,6 +84,11 @@ if __name__ == '__main__':
     louvain_communities_built_in = louvain_communities_built_in[-1]
     print("Louvain built-in Runtime:")
     time_elapsed.stop()
+    print("There were found %d communities in Louvain built-in" % len(louvain_communities_built_in))
+
+    counted_clusters = cluster_counter(louvain_communities_built_in)
+    print(
+        "The first value is # of nodes in the cluster and the second is # of clusters with that length: \n" + str(counted_clusters))
 
     # generate map cluster_id -> genre
     cluster_genre_map = generate_cluster_genre_map(nodes, louvain_communities)
@@ -97,19 +112,10 @@ if __name__ == '__main__':
 
     # - node-importance = most influential and least influential artists per cluster
     nodeImportance_dict = Importance(G, louvain_communities)
-
-    node_importance = data_importance(G, nodeImportance_dict)
-
-    # - runtime-louvain = compare runtime louvain built-in with louvain-scratch
-
-    # - community-detection-louvain = compare communities of built-in louvain and louvain-scratch
-
+    node_importance = data_importance(nodeImportance_dict)
 
     # - collaboration matrix = degree of collaboration between different clusters
     # - clusters visualization = clusters visualization
-    min_len = 9  # minimum cluster length for cluster to be considered
-    max_len = 357  # # maximum cluster length for cluster to be considered
-    generate_collaboration_matrix(nodes, louvain_communities, G, data_visualization_path, min_len, max_len)
     min_len = 9  # minimum cluster length for cluster to be considered
     max_len = 357  # # maximum cluster length for cluster to be considered
     generate_collaboration_matrix(nodes, louvain_communities, G, data_visualization_path, min_len, max_len)

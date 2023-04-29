@@ -47,3 +47,12 @@ louvain algorithm implemented from scratch.
 ```Timer.py```
 This class implements the Timer method which has three main methods: start(), checkpoint() and end(). Start() and End()
 are used to start and stop the timer, whereas checkpoint is used to output the current time elapsed.
+
+```cluster_counter.py```
+This class gives us a list of tuples as output, each one of this has as first element the count of nodes and the second
+the count of clusters with that specific node count.
+
+```data_importance.py```
+This class plots the data produced in the class NodeImportance.py and plots the centrality measures grouped per each
+different centrality having as values the minimum and maximum of the specific centrality measure. In addition, in the
+x-axis is also given the artist that corresponds to the best or worst centrality.
