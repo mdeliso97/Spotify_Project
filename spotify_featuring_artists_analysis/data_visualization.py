@@ -79,11 +79,8 @@ def visualize_clusters(clusters: List[str], labels: List[str], symmetric_matrix,
     fig = px.scatter(df, x='x', y='y', size='cluster_size', color='cluster_label', text='cluster_label', hover_name='cluster_size', size_max=60)
 
     fig.update_layout(showlegend=False)
-    fig.update_xaxes(showticklabels=False)
-    fig.update_yaxes(showticklabels=False)
-    fig.update_xaxes(zeroline=False)
-    fig.update_yaxes(zeroline=False)
-
+    fig.update_xaxes(showticklabels=False, zeroline=False)
+    fig.update_yaxes(showticklabels=False, zeroline=False)
     fig.update_layout(title="Clusters")
 
     # Show the plot

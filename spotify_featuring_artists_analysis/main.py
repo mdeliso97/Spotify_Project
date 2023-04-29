@@ -7,22 +7,26 @@ from data_visualization import *
 from networkx.algorithms import community
 import networkx as nx
 from LouvainScratch import louvain_algorithm
+from NodeImportance import Importance
+from data_importance import data_importance
+from Timer import Timer
 
 if __name__ == '__main__':
 
     # path to data
-    nodes_path = '../Data/nodes.csv'
-    edges_path = '../Data/edges.csv'
-    tracks_path = '../Data/tracks.csv'
-    functional_words_path = '../Data/functional_words.txt'
-    spotify_img_mask_path = '../Data/spotify_mask.jpg'
-    data_visualization_path = '../Data/data_visualization'
+    nodes_path = 'Data/nodes.csv'
+    edges_path = 'Data/edges.csv'
+    tracks_path = 'Data/tracks.csv'
+    functional_words_path = 'Data/functional_words.txt'
+    spotify_img_mask_path = 'Data/spotify_mask.jpg'
+    data_visualization_path = 'Data/data_visualization'
 
     # import data
     nodes = pd.read_csv(nodes_path)
     edges = pd.read_csv(edges_path)
     tracks = pd.read_csv(tracks_path)
     functional_words = read_txt_file(functional_words_path)
+    time_elapsed = Timer()
 
     # create directory for data visualization
     create_visualization_directory(data_visualization_path)
@@ -59,32 +63,53 @@ if __name__ == '__main__':
         G.add_edge(edge['id_0'], edge['id_1'])
 
     # - louvain clustering algorithm
+    time_elapsed.start()
     louvain_communities = louvain_algorithm(G)
+    print("Louvain scratch Runtime:")
+    time_elapsed.stop()
 
     # BUILT-IN: louvain clustering algorithm
-    # louvain_communities = list(community.louvain_partitions(G, seed=20))
-    # louvain_communities = louvain_communities[-1]
+    time_elapsed.start()
+    louvain_communities_built_in = list(community.louvain_partitions(G, seed=20))
+    louvain_communities_built_in = louvain_communities_built_in[-1]
+    print("Louvain built-in Runtime:")
+    time_elapsed.stop()
 
     # generate map cluster_id -> genre
     cluster_genre_map = generate_cluster_genre_map(nodes, louvain_communities)
 
     # data enrichment & visualization:
-    for i, cluster in enumerate(louvain_communities):
+    # for i, cluster in enumerate(louvain_communities):
+    #
+    #     # if cluster is too small don't consider it
+    #     if len(cluster) <= 100:
+    #         continue
+    #
+    #     # - word-cloud = most important words of each cluster
+    #     cluster_word_freq = get_words_frequency(tracks, cluster, functional_words)
+    #     cluster_words_cloud(spotify_img_mask_path, cluster_word_freq, cluster_genre_map[i], data_visualization_path)
+    #
+    #     # - radar-graph = songs qualities and properties
+    #     indexes = cluster_indexes(tracks, cluster)
+    #     generate_indexes_images(indexes, cluster_genre_map[i], data_visualization_path)
 
-        # if cluster is too small don't consider it
-        if len(cluster) <= 100:
-            continue
+    # Data visualization and evaluation
 
-        # - word-cloud = most important words of each cluster
-        cluster_word_freq = get_words_frequency(tracks, cluster, functional_words)
-        cluster_words_cloud(spotify_img_mask_path, cluster_word_freq, cluster_genre_map[i], data_visualization_path)
+    # - node-importance = most influential and least influential artists per cluster
+    nodeImportance_dict = Importance(G, louvain_communities)
 
-        # - radar-graph = songs qualities and properties
-        indexes = cluster_indexes(tracks, cluster)
-        generate_indexes_images(indexes, cluster_genre_map[i], data_visualization_path)
+    node_importance = data_importance(G, nodeImportance_dict)
+
+    # - runtime-louvain = compare runtime louvain built-in with louvain-scratch
+
+    # - community-detection-louvain = compare communities of built-in louvain and louvain-scratch
+
 
     # - collaboration matrix = degree of collaboration between different clusters
     # - clusters visualization = clusters visualization
+    min_len = 9  # minimum cluster length for cluster to be considered
+    max_len = 357  # # maximum cluster length for cluster to be considered
+    generate_collaboration_matrix(nodes, louvain_communities, G, data_visualization_path, min_len, max_len)
     min_len = 9  # minimum cluster length for cluster to be considered
     max_len = 357  # # maximum cluster length for cluster to be considered
     generate_collaboration_matrix(nodes, louvain_communities, G, data_visualization_path, min_len, max_len)
