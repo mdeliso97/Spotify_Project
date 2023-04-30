@@ -9,6 +9,7 @@ from wordcloud import WordCloud
 import plotly.graph_objects as go
 from sklearn import manifold
 import plotly.express as px
+import matplotlib.patches as mpatches
 
 
 def create_visualization_directory(path):
@@ -173,18 +174,22 @@ def generate_radar_graph(indexes, cluster_name: str, color: str, graph_type: str
 def plot_influential_artists(nodes, centralities, cluster_name, path):
     values = [c[1] for c in centralities]
     artist_ids = [c[0] for c in centralities]
-    names = [nodes[nodes['spotify_id'] == artist_id].name.values[0] for artist_id in artist_ids]
+    labels = [nodes[nodes['spotify_id'] == artist_id].name.values[0] for artist_id in artist_ids]
+    colors = ['r', 'b', 'g']
+    names = ['betweenness', 'degree', 'closeness']
 
     plt.figure(figsize=(8, 5))
-    plt.bar(names, values, color=['r', 'b', 'g'])
-
-    # for i, value in enumerate(values):
-    #     plt.text(i, value+0.5, 'betweenness', ha='center')
-    plt.text(0, values[0] + 0.5, 'betweenness', ha='center')
-    plt.text(1, values[1] + 0.5, 'degree', ha='center')
-    plt.text(2, values[2] + 0.5, 'closeness', ha='center')
-
+    plt.bar(names, values, color=colors)
     plt.title(f'Most Influential Artists: {cluster_name}')
     plt.xticks(rotation=0)
-    plt.subplots_adjust(bottom=0.2)  # adjust bottom margin for title
+
+    for i in range(len(values)):
+        plt.text(i, values[i] + 0.05, round(values[i], 2), ha='center')
+
+    plt.ylim(0, 1)
+
+    plt.subplots_adjust(bottom=0.2, top=0.9)
+
+    patches = [mpatches.Patch(color=color, label=label) for color, label in zip(colors, labels)]
+    plt.legend(handles=patches, loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=len(labels))
     plt.savefig(f'{path}/{cluster_name}_cluster_most_influential_artists.png', dpi=300)  # save the image to a file

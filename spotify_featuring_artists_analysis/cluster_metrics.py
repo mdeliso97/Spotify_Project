@@ -70,7 +70,7 @@ def highest_centralities_artists(G, cluster_ids: List[str]):
 
     # find the node with the highest degree centrality
     max_degree_node = max(node_degree, key=node_degree.get)
-    max_degree = node_degree[max_degree_node]
+    max_degree = node_degree[max_degree_node] / (len(cluster_ids) - 1)
     centralities.append((max_degree_node, max_degree))
 
     # find the node with the highest closeness centrality

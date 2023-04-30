@@ -95,10 +95,10 @@ if __name__ == '__main__':
         "The first value is # of nodes in the cluster and the second is # of clusters with that length: \n" + str(counted_clusters))
 
     # generate map cluster_id -> genre
-    cluster_genre_map = generate_cluster_genre_map(nodes, louvain_communities)
+    cluster_genre_map = generate_cluster_genre_map(nodes, louvain_communities_built_in)
 
     # data enrichment & visualization:
-    for i, cluster in enumerate(louvain_communities):
+    for i, cluster in enumerate(louvain_communities_built_in):
 
         # if cluster is too small don't consider it
         if len(cluster) <= 100:
@@ -112,18 +112,17 @@ if __name__ == '__main__':
         indexes = cluster_indexes(tracks, cluster)
         generate_indexes_images(indexes, cluster_genre_map[i], data_visualization_path)
 
-        # centralities = highest_centralities_artists(G, cluster)
-        # plot_influential_artists(nodes, centralities, cluster_genre_map[i], data_visualization_path)
-
+        centralities = highest_centralities_artists(G, cluster)
+        plot_influential_artists(nodes, centralities, cluster_genre_map[i], data_visualization_path)
 
     # Data visualization and evaluation
 
     # - node-importance = most influential and least influential artists per cluster
-    nodeImportance_dict = Importance(G, louvain_communities)
-    node_importance = data_importance(nodeImportance_dict)
+    # nodeImportance_dict = Importance(G, louvain_communities)
+    # node_importance = data_importance(nodeImportance_dict)
 
     # - collaboration matrix = degree of collaboration between different clusters
     # - clusters visualization = clusters visualization
-    min_len = 9  # minimum cluster length for cluster to be considered
+    min_len = 40  # minimum cluster length for cluster to be considered
     max_len = 357  # # maximum cluster length for cluster to be considered
-    generate_collaboration_matrix(nodes, louvain_communities, G, data_visualization_path, min_len, max_len)
+    generate_collaboration_matrix(nodes, louvain_communities_built_in, G, data_visualization_path, min_len, max_len)
