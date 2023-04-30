@@ -2,6 +2,7 @@ import ast
 from collections import Counter
 from typing import List
 import pandas as pd
+import networkx as nx
 
 
 def get_main_n_cluster_genres(nodes: pd.DataFrame, cluster_nodes_ids: List[str], n: int):
@@ -51,3 +52,30 @@ def generate_cluster_genre_map(nodes: pd.DataFrame, louvain_communities: List[Li
         cluster_genre_map[i] = top_genres[0]
 
     return cluster_genre_map
+
+
+def highest_centralities_artists(G, cluster_ids: List[str]):
+    subgraph = G.subgraph(cluster_ids)
+    centralities = []
+
+    # compute centralities for the nodes in the subgraph
+    node_betweenness = nx.betweenness_centrality(subgraph)
+    node_degree = dict(subgraph.degree())
+    node_closeness = nx.closeness_centrality(subgraph)
+
+    # find the node with the highest betweenness centrality
+    max_betweenness_node = max(node_betweenness, key=node_betweenness.get)
+    max_betweenness = node_betweenness[max_betweenness_node]
+    centralities.append((max_betweenness_node, max_betweenness))
+
+    # find the node with the highest degree centrality
+    max_degree_node = max(node_degree, key=node_degree.get)
+    max_degree = node_degree[max_degree_node]
+    centralities.append((max_degree_node, max_degree))
+
+    # find the node with the highest closeness centrality
+    max_closeness_node = max(node_closeness, key=node_closeness.get)
+    max_closeness = node_closeness[max_closeness_node]
+    centralities.append((max_closeness_node, max_closeness))
+
+    return centralities

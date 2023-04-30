@@ -76,7 +76,8 @@ def visualize_clusters(clusters: List[str], labels: List[str], symmetric_matrix,
     })
 
     # Create the bubble chart
-    fig = px.scatter(df, x='x', y='y', size='cluster_size', color='cluster_label', text='cluster_label', hover_name='cluster_size', size_max=60)
+    fig = px.scatter(df, x='x', y='y', size='cluster_size', color='cluster_label', text='cluster_label',
+                     hover_name='cluster_size', size_max=60)
 
     fig.update_layout(showlegend=False)
     fig.update_xaxes(showticklabels=False, zeroline=False)
@@ -167,3 +168,23 @@ def generate_radar_graph(indexes, cluster_name: str, color: str, graph_type: str
         }
     )
     fig.write_image(f'{path}/{cluster_name}_cluster_{graph_type}.png')
+
+
+def plot_influential_artists(nodes, centralities, cluster_name, path):
+    values = [c[1] for c in centralities]
+    artist_ids = [c[0] for c in centralities]
+    names = [nodes[nodes['spotify_id'] == artist_id].name.values[0] for artist_id in artist_ids]
+
+    plt.figure(figsize=(8, 5))
+    plt.bar(names, values, color=['r', 'b', 'g'])
+
+    # for i, value in enumerate(values):
+    #     plt.text(i, value+0.5, 'betweenness', ha='center')
+    plt.text(0, values[0] + 0.5, 'betweenness', ha='center')
+    plt.text(1, values[1] + 0.5, 'degree', ha='center')
+    plt.text(2, values[2] + 0.5, 'closeness', ha='center')
+
+    plt.title(f'Most Influential Artists: {cluster_name}')
+    plt.xticks(rotation=0)
+    plt.subplots_adjust(bottom=0.2)  # adjust bottom margin for title
+    plt.savefig(f'{path}/{cluster_name}_cluster_most_influential_artists.png', dpi=300)  # save the image to a file

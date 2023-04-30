@@ -63,6 +63,10 @@ if __name__ == '__main__':
     for _, edge in edges.iterrows():
         G.add_edge(edge['id_0'], edge['id_1'])
 
+    print("Spotify Artists Featurings Network")
+    print(f"#nodes = {nx.number_of_nodes(G)}")
+    print(f"#nodes = {nx.number_of_edges(G)}")
+
     # - louvain clustering algorithm
     time_elapsed.start()
     louvain_communities = louvain_algorithm(G)
@@ -94,19 +98,23 @@ if __name__ == '__main__':
     cluster_genre_map = generate_cluster_genre_map(nodes, louvain_communities)
 
     # data enrichment & visualization:
-    # for i, cluster in enumerate(louvain_communities):
-    #
-    #     # if cluster is too small don't consider it
-    #     if len(cluster) <= 100:
-    #         continue
-    #
-    #     # - word-cloud = most important words of each cluster
-    #     cluster_word_freq = get_words_frequency(tracks, cluster, functional_words)
-    #     cluster_words_cloud(spotify_img_mask_path, cluster_word_freq, cluster_genre_map[i], data_visualization_path)
-    #
-    #     # - radar-graph = songs qualities and properties
-    #     indexes = cluster_indexes(tracks, cluster)
-    #     generate_indexes_images(indexes, cluster_genre_map[i], data_visualization_path)
+    for i, cluster in enumerate(louvain_communities):
+
+        # if cluster is too small don't consider it
+        if len(cluster) <= 100:
+            continue
+
+        # - word-cloud = most important words of each cluster
+        cluster_word_freq = get_words_frequency(tracks, cluster, functional_words)
+        cluster_words_cloud(spotify_img_mask_path, cluster_word_freq, cluster_genre_map[i], data_visualization_path)
+
+        # - radar-graph = songs qualities and properties
+        indexes = cluster_indexes(tracks, cluster)
+        generate_indexes_images(indexes, cluster_genre_map[i], data_visualization_path)
+
+        # centralities = highest_centralities_artists(G, cluster)
+        # plot_influential_artists(nodes, centralities, cluster_genre_map[i], data_visualization_path)
+
 
     # Data visualization and evaluation
 
