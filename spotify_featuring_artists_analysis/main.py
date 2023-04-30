@@ -95,10 +95,10 @@ if __name__ == '__main__':
         "The first value is # of nodes in the cluster and the second is # of clusters with that length: \n" + str(counted_clusters))
 
     # generate map cluster_id -> genre
-    cluster_genre_map = generate_cluster_genre_map(nodes, louvain_communities_built_in)
+    cluster_genre_map = generate_cluster_genre_map(nodes, louvain_communities)
 
     # data enrichment & visualization:
-    for i, cluster in enumerate(louvain_communities_built_in):
+    for i, cluster in enumerate(louvain_communities):
 
         # if cluster is too small don't consider it
         if len(cluster) <= 100:
@@ -125,4 +125,4 @@ if __name__ == '__main__':
     # - clusters visualization = clusters visualization
     min_len = 40  # minimum cluster length for cluster to be considered
     max_len = 357  # # maximum cluster length for cluster to be considered
-    generate_collaboration_matrix(nodes, louvain_communities_built_in, G, data_visualization_path, min_len, max_len)
+    generate_collaboration_matrix(nodes, louvain_communities, G, data_visualization_path, min_len, max_len)
