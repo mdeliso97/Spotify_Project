@@ -64,15 +64,17 @@ if __name__ == '__main__':
         G.add_edge(edge['id_0'], edge['id_1'])
 
     print("Spotify Artists Featurings Network")
-    print(f"#nodes = {nx.number_of_nodes(G)}")
-    print(f"#nodes = {nx.number_of_edges(G)}")
+
+    print("\nNetwork Data:")
+    print(f"> #nodes = {nx.number_of_nodes(G)}")
+    print(f"> #edges = {nx.number_of_edges(G)}")
 
     # - louvain clustering algorithm
     time_elapsed.start()
     louvain_communities = louvain_algorithm(G)
 
     # - runtime-louvain = compare runtime louvain built-in with louvain-scratch
-    print("Louvain scratch Runtime:")
+    print("\nLouvain scratch Runtime:")
     time_elapsed.stop()
 
     # - community-detection-louvain = compare communities of built-in louvain and louvain-scratch
@@ -86,7 +88,7 @@ if __name__ == '__main__':
     time_elapsed.start()
     louvain_communities_built_in = list(community.louvain_partitions(G, seed=20))
     louvain_communities_built_in = louvain_communities_built_in[-1]
-    print("Louvain built-in Runtime:")
+    print("\nLouvain built-in Runtime:")
     time_elapsed.stop()
     print("There were found %d communities in Louvain built-in" % len(louvain_communities_built_in))
 
@@ -123,6 +125,6 @@ if __name__ == '__main__':
 
     # - collaboration matrix = degree of collaboration between different clusters
     # - clusters visualization = clusters visualization
-    min_len = 40  # minimum cluster length for cluster to be considered
+    min_len = 9  # minimum cluster length for cluster to be considered
     max_len = 357  # # maximum cluster length for cluster to be considered
     generate_collaboration_matrix(nodes, louvain_communities, G, data_visualization_path, min_len, max_len)
