@@ -12,7 +12,7 @@ the implementation, which gave the exact same result as given in the simulation.
 
 
 def louvain_algorithm(G):
-    # Initialize the partition with each node in its own community
+    # Step 1: Initialize the partition with each node in its own community
     partition = [[node] for node in G.nodes()]
     ht = {}
 
@@ -35,7 +35,7 @@ def louvain_algorithm(G):
         # Loop over each node and its neighbors
         for node in sorted(G.nodes()):
 
-            # Step 1: remove node from its community
+            # Step 2 + 4: remove current node from its community
             pos = ht[node]
             new_partition[pos].remove(node)
 
@@ -50,7 +50,7 @@ def louvain_algorithm(G):
                 new_modularity = modularity_gain(G, new_partition[pos_neighbor], node)
                 community_gains["%s" % str(new_partition[pos_neighbor])] = new_modularity
 
-            # Move the node to the community with the maximum modularity gain
+            # Step 3: move the node to the community with the maximum modularity gain
             best_community = max(community_gains, key=community_gains.get)
 
             com_pos = best_community
@@ -66,7 +66,7 @@ def louvain_algorithm(G):
         if new_modularity == max_modularity:
             break
 
-        # Update the partition and maximum modularity
+        # Update the partition and maximum modularity until convergence
         partition = new_partition
         max_modularity = new_modularity
 

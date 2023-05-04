@@ -6,10 +6,10 @@ from cluster_metrics import *
 from data_visualization import *
 from networkx.algorithms import community
 import networkx as nx
-from LouvainScratch import louvain_algorithm
-from NodeImportance import Importance
+from louvain_scratch import louvain_algorithm
+from node_importance import Importance
 from data_importance import data_importance
-from Timer import Timer
+from timer import Timer
 from cluster_counter import cluster_counter
 
 if __name__ == '__main__':
@@ -78,11 +78,11 @@ if __name__ == '__main__':
     time_elapsed.stop()
 
     # - community-detection-louvain = compare communities of built-in louvain and louvain-scratch
-    print("There were found %d communities in Louvain scratch" % len(louvain_communities))
+    print("# communities Louvain scratch: %d" % len(louvain_communities))
 
     counted_clusters = cluster_counter(louvain_communities)
     print(
-        "The first value is # of nodes in the cluster and the second is # of clusters with that length: \n" + str(counted_clusters))
+        f"The first value is # of nodes in the cluster and the second is # of clusters with that length: {counted_clusters}")
 
     # BUILT-IN: louvain clustering algorithm
     time_elapsed.start()
@@ -90,11 +90,11 @@ if __name__ == '__main__':
     louvain_communities_built_in = louvain_communities_built_in[-1]
     print("\nLouvain built-in Runtime:")
     time_elapsed.stop()
-    print("There were found %d communities in Louvain built-in" % len(louvain_communities_built_in))
+    print("# communities Louvain built-in: %d" % len(louvain_communities_built_in))
 
     counted_clusters = cluster_counter(louvain_communities_built_in)
     print(
-        "The first value is # of nodes in the cluster and the second is # of clusters with that length: \n" + str(counted_clusters))
+        f"The first value is # of nodes in the cluster and the second is # of clusters with that length: {counted_clusters}")
 
     # generate map cluster_id -> genre
     cluster_genre_map = generate_cluster_genre_map(nodes, louvain_communities)

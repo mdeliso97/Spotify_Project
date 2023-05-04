@@ -1,5 +1,5 @@
 import networkx as nx
-import LouvainScratch
+import louvain_scratch
 
 
 '''
