@@ -22,29 +22,29 @@ It contains all the functions producing visual outputs and plots.
 ```cluster_metrics.py```
 Functions to compute the metrics of a given cluster.
 
-```CommonEdges.py```
+```common_edges.py```
 This class takes as inputs 2 communities (lists of nodes) and the graph itself and outputs the edges in common between
 the two communities.
 
-```LouvainScratch.py```
+```louvain_scratch.py```
 Our chosen Analytic was Community Detection, hence the Louvain clustering algorithm from scratch. This class implements
 the Louvain algorithm seen in class.
 
-```LabelConverter.py```
+```label_converter.py```
 This small program can be used to convert the dataset into integers and mapped through a dictionary to keep track of 
 them.
 
-```NodeImportance.py```
+```node_importance.py```
 This class takes as inputs a graph G and a list of lists of communities. It is responsible to find for each community
 the best/worst nodes in each centrality measure: degree centrality, closeness centrality and betweenness centrality.
 Finally, the algorithm outputs a dictionary of dictionaries, which holds a dictionary of indexed clusters (following the 
 order of the input) with inside 3 dictionaries of the best node for each centrality category.
 
-```SimulationNetwork.py```
+```simulation_network.py```
 This is just a sample of a network of which we previously calculated the solution. It is a reference to compare the 
 louvain algorithm implemented from scratch.
 
-```Timer.py```
+```timer.py```
 This class implements the Timer method which has three main methods: start(), checkpoint() and end(). Start() and End()
 are used to start and stop the timer, whereas checkpoint is used to output the current time elapsed.
 
