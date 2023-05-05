@@ -63,15 +63,7 @@ def get_words_frequency(tracks: pd.DataFrame, cluster_ids: List[str], functional
     return word_freq
 
 
-def normalize_tracks(tracks: pd.DataFrame):
-    """
-    This function normalizes the values of
-    tracks columns with indexes
-    Parameters:
-    tracks (pd.DataFrame): dataframe containing tracks
-    Returns:
-    pd.DataFrame: dataframe containing normalized tracks
-    """
+def clean_tracks(tracks:pd.DataFrame):
     tracks = tracks.copy()  # copy dataframe
 
     # name
@@ -84,6 +76,18 @@ def normalize_tracks(tracks: pd.DataFrame):
     # artists
     tracks.loc[:, 'artists'] = tracks['artists'].apply(ast.literal_eval)
     tracks.loc[:, 'artists'] = tracks['artists'].apply(lambda x: x[0])
+    return tracks
+
+
+def normalize_tracks(tracks: pd.DataFrame):
+    """
+    This function normalizes the values of
+    tracks columns with indexes
+    Parameters:
+    tracks (pd.DataFrame): dataframe containing tracks
+    Returns:
+    pd.DataFrame: dataframe containing normalized tracks
+    """
 
     # features
     features = ['danceability', 'energy', 'loudness', 'valence', 'tempo', 'speechiness', 'acousticness',

@@ -12,7 +12,7 @@ import plotly.express as px
 import matplotlib.patches as mpatches
 
 
-def create_visualization_directory(path):
+def create_plot_directory(path):
     """
     Create a directory in the given path if it does not already exist
     Parameters:

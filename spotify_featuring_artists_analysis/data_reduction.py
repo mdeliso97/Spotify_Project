@@ -45,7 +45,8 @@ def get_artists_popularity_larger_or_equal_than_n(nodes: pd.DataFrame, n: int):
     List[str]: id of the artists with < than popularity n
     """
     if 0 <= n <= 100:
-        return nodes[nodes['popularity'] >= n]['spotify_id'].tolist(), nodes[nodes['popularity'] < n]['spotify_id'].tolist()
+        return nodes[nodes['popularity'] >= n]['spotify_id'].tolist(), nodes[nodes['popularity'] < n][
+            'spotify_id'].tolist()
     else:
         return nodes['spotify_id'], None
 
@@ -77,3 +78,8 @@ def filter_edges_on_ids(edges: pd.DataFrame, nodes_to_keep: List[str]):
     filtered_edges = edges[edges['id_0'].isin(nodes_to_keep)]
     filtered_edges = filtered_edges[filtered_edges['id_1'].isin(nodes_to_keep)]
     return filtered_edges
+
+
+def filter_tracks_on_ids(tracks: pd.DataFrame, nodes_to_keep: List[str]):
+    filtered_tracks = tracks[tracks['id_artists'].isin(nodes_to_keep)]
+    return filtered_tracks
