@@ -25,17 +25,19 @@ def histogram_communities():
     communities_scratch = [Y for X, Y in sorted_scratch]
     communities_built_in = [Y for X, Y in sorted_built_in]
 
-    plt.bar(nodes_scratch, communities_scratch, width=5)
-    plt.ylabel('# of communities')
-    plt.xlabel('# of artists')
-    plt.title('communities artists distribution')
+    plt.bar(nodes_scratch, communities_scratch, width=3)
+    plt.ylabel('Number of communities')
+    plt.ylim(0, 10)
+    plt.xlabel('Number of artists')
+    plt.title('Scratch communities artists distribution')
     plt.savefig(f'histogram_scratch_communities_5.png')
     plt.show()
 
-    plt.bar(nodes_built_in, communities_built_in, width=5)
-    plt.ylabel('# of communities')
-    plt.xlabel('# of artists')
-    plt.title('communities artists distribution')
+    plt.bar(nodes_built_in, communities_built_in, width=3)
+    plt.ylabel('Number of communities')
+    plt.ylim(0, 10)
+    plt.xlabel('Number of artists')
+    plt.title('Built-in communities artists distribution')
     plt.savefig(f'histogram_builtin_communities_5.png')
     plt.show()
 
