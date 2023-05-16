@@ -99,6 +99,14 @@ if __name__ == '__main__':
     counted_clusters = cluster_counter(louvain_communities_built_in)
     print(f'(#nodes, #communities) = {counted_clusters}')
 
+    # Normalized Mutual Information: Louvain Built-in vs Louvain Scratch __________________________
+
+    nodes = nodes_cluster_labels(nodes, louvain_communities_built_in, louvain_communities)
+    mua = clusters_mutual_information(nodes)
+
+    print("\nNormalized Mutual Information: Louvain Built-in vs Louvain Scratch")
+    print(f'MUA = {mua}')
+
     # Analyze communities _________________________________________________________________________
 
     # Generate map cluster_id -> genre
