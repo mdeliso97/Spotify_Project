@@ -57,6 +57,6 @@ This class plots the data produced in the class NodeImportance.py and plots the 
 different centrality having as values the minimum and maximum of the specific centrality measure. In addition, in the
 x-axis is also given the artist that corresponds to the best or worst centrality.
 
-```histogram:communities.py```
+```histogram_communities.py```
 This class is responsible for the plots of the two Louvain algorithms which represent the amount of clusters sharing the 
 same count of artists. It generates two histograms.
