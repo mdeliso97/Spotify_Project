@@ -62,7 +62,7 @@ if __name__ == '__main__':
     for _, edge in edges.iterrows():
         G.add_edge(edge['id_0'], edge['id_1'])
 
-    print("Spotify Artists Featurings Network")
+    print("\nSpotify Artists Featurings Network")
 
     print("\nNetwork Data:")
     print(f"> #nodes = {nx.number_of_nodes(G)}")
@@ -78,10 +78,10 @@ if __name__ == '__main__':
 
     time_elapsed.stop()
 
-    print("#communities = %d" % len(louvain_communities))
+    print("> #communities = %d" % len(louvain_communities))
 
     counted_clusters = cluster_counter(louvain_communities)
-    print(f'(#nodes, #communities) = {counted_clusters}')
+    print(f'> distribution (#nodes, #communities) = \n{counted_clusters}')
 
     # Louvain: Implementation built-in ____________________________________________________________
     time_elapsed.start()
@@ -90,22 +90,22 @@ if __name__ == '__main__':
     louvain_communities_built_in = list(community.louvain_partitions(G, seed=20))
     louvain_communities_built_in = louvain_communities_built_in[-1]
 
-    print("\nLouvain Built-in Runtime:")
+    print("\nLouvain Built-In Runtime:")
 
     time_elapsed.stop()
 
-    print("#communities = %d" % len(louvain_communities_built_in))
+    print("> #communities = %d" % len(louvain_communities_built_in))
 
     counted_clusters = cluster_counter(louvain_communities_built_in)
-    print(f'(#nodes, #communities) = {counted_clusters}')
+    print(f'> distribution (#nodes, #communities) = \n{counted_clusters}')
 
     # Normalized Mutual Information: Louvain Built-in vs Louvain Scratch __________________________
 
     nodes = nodes_cluster_labels(nodes, louvain_communities_built_in, louvain_communities)
-    mua = clusters_mutual_information(nodes)
+    nmi = clusters_mutual_information(nodes)
 
-    print("\nNormalized Mutual Information: Louvain Built-in vs Louvain Scratch")
-    print(f'MUA = {mua}')
+    print("\nLouvain Distributions Comparison - Built-In Vs Scratch:")
+    print(f'> normalized mutual information = {nmi}\n')
 
     # Analyze communities _________________________________________________________________________
 

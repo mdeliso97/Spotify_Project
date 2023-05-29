@@ -38,4 +38,4 @@ class Timer:
 
         self._start_time = None
 
-        print(f"Elapsed time: {elapsed_time:0.4f} s")
+        print(f"> elapsed time: {elapsed_time:0.4f}s")
