@@ -23,14 +23,15 @@ Go to the project directory and create a python virtual environment:
 Activate the virtual environment:
 `source spotify_env/bin/activate`
 
-## 4. Install the dependencies
-`pip install -r requirements.txt`
-
-## 5. Run the project
+## 4. Enter current folder
 Now, move to code directory:
 
 `cd ./spotify_featuring_artists_analysis`
 
+## 5. Install the dependencies
+`pip install -r requirements.txt`
+
+## 6. Run the project
 Run the project by executing the `main.py` file:
 
 `python main.py`
