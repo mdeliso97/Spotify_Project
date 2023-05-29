@@ -2,7 +2,7 @@
 # Spotify Featuring Artists Analysis
 Welcome to our Network Analysis project readme file!
 
-In this project, we analyze the Spotify featuring artists collaboration network. Here are the steps to run our project successfully:
+In this project, we analyze the Spotify featuring artists collaboration network. Here are the steps to successfully run our project.
 
 ## 1. Download the datasets
 To get started, please download the three datasets we use for our analysis. You can find the links to download the datasets below:
@@ -17,10 +17,12 @@ Make sure to name the datasets exactly as provided above.
 After downloading the datasets, please import them into the `./Data` directory in the project folder.
 
 ## 3. Create a Python virtual environment
-Go to the project directory and create a python virtual environment:
+Go to the project directory and create a python virtual environment. You can use any name you want for the environment, here we will call it `spotify_env`:
+
 `python -m venv spotify_env`
 
 Activate the virtual environment:
+
 `source spotify_env/bin/activate`
 
 ## 4. Enter current folder
@@ -29,6 +31,8 @@ Now, move to code directory:
 `cd ./spotify_featuring_artists_analysis`
 
 ## 5. Install the dependencies
+Automatically install all the required python packages:
+
 `pip install -r requirements.txt`
 
 ## 6. Run the project
